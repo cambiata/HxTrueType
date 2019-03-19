@@ -1,6 +1,6 @@
 /**
- * All credits to Andrey Bobkov
- * https://github.com/b0beR/hxswfml
+ * All credits to Jan Flanders
+ * https://code.google.com/archive/p/hxswfml/
  */
 
 package format.ttf;
@@ -76,6 +76,7 @@ class Tools {
 				case 0: Type.getEnumConstructs(LangUnicode)[platformSpecificId];
 				case 1: Type.getEnumConstructs(LangMacintosh)[platformSpecificId];
 				case 3: Type.getEnumConstructs(LangMicrosoft)[platformSpecificId];
+				case _: 'UNSPECIFIED';
 			});
 
 			buf.add('\noffset: ');

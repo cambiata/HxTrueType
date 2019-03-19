@@ -1,6 +1,6 @@
 /**
- * All credits to Andrey Bobkov
- * https://github.com/b0beR/hxswfml
+ * All credits to Jan Flanders
+ * https://code.google.com/archive/p/hxswfml/
  */
 
 package format.ttf;
