@@ -1,7 +1,7 @@
 # HxTrueType
 Native Haxe TrueType parsing and rendering. WIP.
 
-Based on Andrey Bobkov's hxswfml library (https://github.com/b0beR/hxswfml) wich seems to be unmaintained.
+Based on Jan Flander's hxswfml library (https://code.google.com/archive/p/hxswfml/) wich seems to be unmaintained.
 
 
 ![alt text](example.png)
