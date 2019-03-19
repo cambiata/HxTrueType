@@ -4,7 +4,7 @@ Native Haxe TrueType parsing and rendering. WIP.
 Based on Andrey Bobkov's hxswfml library (https://github.com/b0beR/hxswfml) wich seems to be unmaintained.
 
 
-![alt text](https://raw.githubusercontent.com/cambiata/HxTrueType/master/example.png)
+![alt text](example.png)
 
 
 ## TODO
