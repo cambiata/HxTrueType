@@ -33,17 +33,30 @@ class TTFGlyphUtils {
 
 	public function getGlyphSimple(index):GlyphSimple {
 		var description:GlyfDescription = this.descriptions[index];
-		var header:GlyphHeader = null;
-		var simple:GlyphSimple = null;
-		switch description {
+		return switch description {
 			case TGlyphSimple(h, data):
-				simple = data;
+				data
 			case TGlyphComposite(h, components):
+				// Still haven't found any Composite glyphs...
 				throw 'TGlyphComposite $index';
+				null;
 			case TGlyphNull:
 				trace('TGlyphNull $index');
+				null;
 		}
-		return simple;
+	}
+
+	public function getGlyphHeader(index):GlyphHeader {
+		var description:GlyfDescription = this.descriptions[index];
+		return switch description {
+			case TGlyphSimple(header, data):
+				header;
+			case TGlyphComposite(header, components):
+				header;
+			case TGlyphNull:
+				trace('TGlyphNull $index');
+				null;
+		}
 	}
 
 	public function getGlyphContours(index:Int):Array<Array<ContourPoint>> {

@@ -16,11 +16,13 @@ class Main {
 		var ttfReader:format.ttf.Reader = new format.ttf.Reader(bytesInput);
 		var ttf:TTF = ttfReader.read();
 		var fontUtils = new TTFGlyphUtils(ttf);
-		for (i in 0...24)
+		for (i in 0...128)
 			this.displayGlyph(i, fontUtils);
+
+		// this.displayGlyph(9, fontUtils);
 	}
 
-	function displayGlyph(index:Int, utils:TTFGlyphUtils) {
+	function displayGlyph(index:Int, utils:TTFGlyphUtils, displayScale = 4) {
 		trace('=== index $index ================================');
 
 		// Only works with GlyphSimple right now...
@@ -29,16 +31,33 @@ class Main {
 		if (glyph == null)
 			return;
 
+		var glyphHeader:GlyphHeader = utils.getGlyphHeader(index);
+		trace(glyphHeader);
+
 		var contours = utils.getGlyphContours(index);
-		var scale = (64 / utils.headdata.unitsPerEm) * 3;
+		var scale = (64 / utils.headdata.unitsPerEm) * displayScale;
 		var canvas:js.html.CanvasElement = Browser.document.createCanvasElement();
 		Browser.document.body.appendChild(canvas);
-		canvas.setAttribute('height', '250px');
-		canvas.setAttribute('width', '250px');
-		var ctx:CanvasRenderingContext2D = canvas.getContext2d();
-		ctx.scale(scale, -scale);
-		ctx.translate(-utils.headdata.xMin, -utils.headdata.yMin - (utils.headdata.yMax - utils.headdata.yMin));
 
+		var canvasWidth = (glyphHeader.xMax + 5) * scale;
+		var canvasHeight = (utils.headdata.yMax + 300) * scale;
+		canvas.setAttribute('height', '${canvasHeight}px');
+		canvas.setAttribute('width', '${canvasWidth}px');
+		var ctx:CanvasRenderingContext2D = canvas.getContext2d();
+
+		ctx.scale(scale, -scale);
+		ctx.translate(0, -utils.headdata.yMax);
+
+		// --------------------------------------------------------------------
+		// Draw bounding box
+
+		ctx.beginPath();
+		ctx.rect(glyphHeader.xMin, glyphHeader.yMin, glyphHeader.xMax - glyphHeader.xMin, glyphHeader.yMax - glyphHeader.yMin);
+		ctx.stroke();
+
+		ctx.beginPath();
+		ctx.rect(0, 0, glyphHeader.xMax, glyphHeader.yMax);
+		ctx.stroke();
 		//--------------------------------------------------------------------
 		// Draw glyph outline
 		ctx.beginPath();
@@ -62,7 +81,7 @@ class Main {
 				}
 			}
 		}
-		ctx.fillStyle = '#dddddd';
+		ctx.fillStyle = '#eeeeee';
 		ctx.fill();
 		ctx.lineWidth = 3;
 		ctx.stroke();

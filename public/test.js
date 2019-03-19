@@ -34,51 +34,45 @@ var Main = function() {
 	var ttfReader = new format_ttf_Reader(bytesInput);
 	var ttf = ttfReader.read();
 	var fontUtils = new truetype_TTFGlyphUtils(ttf);
-	this.displayGlyph(0,fontUtils);
-	this.displayGlyph(1,fontUtils);
-	this.displayGlyph(2,fontUtils);
-	this.displayGlyph(3,fontUtils);
-	this.displayGlyph(4,fontUtils);
-	this.displayGlyph(5,fontUtils);
-	this.displayGlyph(6,fontUtils);
-	this.displayGlyph(7,fontUtils);
-	this.displayGlyph(8,fontUtils);
-	this.displayGlyph(9,fontUtils);
-	this.displayGlyph(10,fontUtils);
-	this.displayGlyph(11,fontUtils);
-	this.displayGlyph(12,fontUtils);
-	this.displayGlyph(13,fontUtils);
-	this.displayGlyph(14,fontUtils);
-	this.displayGlyph(15,fontUtils);
-	this.displayGlyph(16,fontUtils);
-	this.displayGlyph(17,fontUtils);
-	this.displayGlyph(18,fontUtils);
-	this.displayGlyph(19,fontUtils);
-	this.displayGlyph(20,fontUtils);
-	this.displayGlyph(21,fontUtils);
-	this.displayGlyph(22,fontUtils);
-	this.displayGlyph(23,fontUtils);
+	var _g = 0;
+	while(_g < 128) {
+		var i = _g++;
+		this.displayGlyph(i,fontUtils);
+	}
 };
 Main.__name__ = true;
 Main.main = function() {
 	new Main();
 };
 Main.prototype = {
-	displayGlyph: function(index,utils) {
-		console.log("src/Main.hx:24:","=== index " + index + " ================================");
+	displayGlyph: function(index,utils,displayScale) {
+		if(displayScale == null) {
+			displayScale = 4;
+		}
+		console.log("src/Main.hx:26:","=== index " + index + " ================================");
 		var glyph = utils.getGlyphSimple(index);
 		if(glyph == null) {
 			return;
 		}
+		var glyphHeader = utils.getGlyphHeader(index);
+		console.log("src/Main.hx:35:",glyphHeader);
 		var contours = utils.getGlyphContours(index);
-		var scale = 64 / utils.headdata.unitsPerEm * 3;
+		var scale = 64 / utils.headdata.unitsPerEm * displayScale;
 		var canvas = window.document.createElement("canvas");
 		window.document.body.appendChild(canvas);
-		canvas.setAttribute("height","250px");
-		canvas.setAttribute("width","250px");
+		var canvasWidth = (glyphHeader.xMax + 5) * scale;
+		var canvasHeight = (utils.headdata.yMax + 300) * scale;
+		canvas.setAttribute("height","" + canvasHeight + "px");
+		canvas.setAttribute("width","" + canvasWidth + "px");
 		var ctx = canvas.getContext("2d",null);
 		ctx.scale(scale,-scale);
-		ctx.translate(-utils.headdata.xMin,-utils.headdata.yMin - (utils.headdata.yMax - utils.headdata.yMin));
+		ctx.translate(0,-utils.headdata.yMax);
+		ctx.beginPath();
+		ctx.rect(glyphHeader.xMin,glyphHeader.yMin,glyphHeader.xMax - glyphHeader.xMin,glyphHeader.yMax - glyphHeader.yMin);
+		ctx.stroke();
+		ctx.beginPath();
+		ctx.rect(0,0,glyphHeader.xMax,glyphHeader.yMax);
+		ctx.stroke();
 		ctx.beginPath();
 		var _g = 0;
 		while(_g < contours.length) {
@@ -106,7 +100,7 @@ Main.prototype = {
 				}
 			}
 		}
-		ctx.fillStyle = "#dddddd";
+		ctx.fillStyle = "#eeeeee";
 		ctx.fill();
 		ctx.lineWidth = 3;
 		ctx.stroke();
@@ -1257,23 +1251,35 @@ truetype_TTFGlyphUtils.__name__ = true;
 truetype_TTFGlyphUtils.prototype = {
 	getGlyphSimple: function(index) {
 		var description = this.descriptions[index];
-		var header = null;
-		var simple = null;
 		switch(description._hx_index) {
 		case 0:
 			var data = description.data;
 			var h = description.header;
-			simple = data;
-			break;
+			return data;
 		case 1:
 			var components = description.components;
 			var h1 = description.header;
 			throw new js__$Boot_HaxeError("TGlyphComposite " + index);
 		case 2:
 			console.log("src/truetype/TTFGlyphUtils.hx:44:","TGlyphNull " + index);
-			break;
+			return null;
 		}
-		return simple;
+	}
+	,getGlyphHeader: function(index) {
+		var description = this.descriptions[index];
+		switch(description._hx_index) {
+		case 0:
+			var data = description.data;
+			var header = description.header;
+			return header;
+		case 1:
+			var components = description.components;
+			var header1 = description.header;
+			return header1;
+		case 2:
+			console.log("src/truetype/TTFGlyphUtils.hx:57:","TGlyphNull " + index);
+			return null;
+		}
 	}
 	,getGlyphContours: function(index) {
 		var simple = this.getGlyphSimple(index);
