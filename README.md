@@ -8,7 +8,6 @@ Based on Andrey Bobkov's hxswfml library (https://github.com/b0beR/hxswfml) wich
 
 
 ## TODO
-
 - Basic glyph outline parsing and rendering - working
 - Glyph metrics
 - String metrics including kerning

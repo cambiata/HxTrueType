@@ -28,19 +28,12 @@ HxOverrides.substr = function(s,pos,len) {
 	}
 	return s.substr(pos,len);
 };
-HxOverrides.iter = function(a) {
-	return { cur : 0, arr : a, hasNext : function() {
-		return this.cur < this.arr.length;
-	}, next : function() {
-		return this.arr[this.cur++];
-	}};
-};
 var Main = function() {
 	var bytes = haxe_Resource.getBytes("font");
 	var bytesInput = new haxe_io_BytesInput(bytes);
 	var ttfReader = new format_ttf_Reader(bytesInput);
 	var ttf = ttfReader.read();
-	var fontUtils = new TTFGlyphUtils(ttf);
+	var fontUtils = new truetype_TTFGlyphUtils(ttf);
 	this.displayGlyph(0,fontUtils);
 	this.displayGlyph(1,fontUtils);
 	this.displayGlyph(2,fontUtils);
@@ -72,17 +65,17 @@ Main.main = function() {
 };
 Main.prototype = {
 	displayGlyph: function(index,utils) {
-		console.log("src/Main.hx:23:","=== index " + index + " ================================");
+		console.log("src/Main.hx:24:","=== index " + index + " ================================");
 		var glyph = utils.getGlyphSimple(index);
 		if(glyph == null) {
 			return;
 		}
 		var contours = utils.getGlyphContours(index);
-		var scale = 64 / utils.headdata.unitsPerEm * 5;
+		var scale = 64 / utils.headdata.unitsPerEm * 3;
 		var canvas = window.document.createElement("canvas");
 		window.document.body.appendChild(canvas);
-		canvas.setAttribute("height","500px");
-		canvas.setAttribute("width","500px");
+		canvas.setAttribute("height","250px");
+		canvas.setAttribute("width","250px");
 		var ctx = canvas.getContext("2d",null);
 		ctx.scale(scale,-scale);
 		ctx.translate(-utils.headdata.xMin,-utils.headdata.yMin - (utils.headdata.yMax - utils.headdata.yMin));
@@ -140,151 +133,6 @@ Main.prototype = {
 				ctx.rect(point1.x - 10,point1.y - 10,20,20);
 				ctx.fill();
 			}
-		}
-	}
-};
-var TTFGlyphUtils = function(ttf) {
-	var _g = 0;
-	var _g1 = ttf.tables;
-	while(_g < _g1.length) {
-		var table = _g1[_g];
-		++_g;
-		switch(table._hx_index) {
-		case 0:
-			var descriptions = table.descriptions;
-			console.log("src/Main.hx:113:","TGlyf descriptions: " + descriptions.length);
-			this.descriptions = descriptions;
-			this.length = this.descriptions.length;
-			break;
-		case 5:
-			var headdata = table.data;
-			this.headdata = headdata;
-			break;
-		default:
-		}
-	}
-};
-TTFGlyphUtils.__name__ = true;
-TTFGlyphUtils.prototype = {
-	getGlyphSimple: function(index) {
-		var description = this.descriptions[index];
-		var header = null;
-		var simple = null;
-		switch(description._hx_index) {
-		case 0:
-			var data = description.data;
-			var h = description.header;
-			simple = data;
-			break;
-		case 1:
-			var components = description.components;
-			var h1 = description.header;
-			throw new js__$Boot_HaxeError("TGlyphComposite " + index);
-		case 2:
-			console.log("src/Main.hx:133:","TGlyphNull " + index);
-			break;
-		}
-		return simple;
-	}
-	,getGlyphContours: function(index) {
-		var simple = this.getGlyphSimple(index);
-		var points = [];
-		var _g = 0;
-		var _g1 = simple.flags.length;
-		while(_g < _g1) {
-			var i = _g++;
-			var onCurve = simple.flags[i] % 2 != 0;
-			var point = { onCurve : onCurve, x : simple.xCoordinates[i], y : simple.yCoordinates[i]};
-			points.push(point);
-		}
-		var p = 0;
-		var c = 0;
-		var first = 1;
-		var contour = [];
-		var contours = [];
-		while(p < points.length) {
-			var point1 = points[p];
-			if(first == 1) {
-				first = 0;
-			}
-			contour.push(point1);
-			if(p == simple.endPtsOfContours[c]) {
-				++c;
-				first = 1;
-				contours.push(contour.slice());
-				contour = [];
-			}
-			++p;
-		}
-		this.adjustContours(contours);
-		return contours;
-	}
-	,adjustContours: function(contours) {
-		var hasOnCurve = function(contour) {
-			return contour.filter(function(i) {
-				return i.onCurve == true;
-			}).length > 0;
-		};
-		var shiftPoints = function(contour1) {
-			var count = 0;
-			var first = contour1[0];
-			while(first.onCurve == false) {
-				if(count++ > contour1.length) {
-					throw new js__$Boot_HaxeError("AJAJJAJJJAJJJJ");
-				}
-				contour1.push(contour1.shift());
-				first = contour1[0];
-			}
-		};
-		var addControlPointOnCurve = function(contour2) {
-			var p0 = contour2[0];
-			var p1 = contour2[contour2.length - 1];
-			var newX = (p1.x - p0.x) / 2 + p0.x;
-			var newY = (p1.y - p0.y) / 2 + p0.y;
-			var newPoint = { x : newX, y : newY, onCurve : true};
-			contour2.unshift(newPoint);
-		};
-		var _g = 0;
-		while(_g < contours.length) {
-			var contour3 = contours[_g];
-			++_g;
-			console.log("src/Main.hx:204:","ADJUST CONTOUR: ");
-			console.log("src/Main.hx:205:","hasOnCurve:" + Std.string(hasOnCurve(contour3)));
-			if(hasOnCurve(contour3)) {
-				console.log("src/Main.hx:207:","shift this one...");
-				shiftPoints(contour3);
-			} else {
-				addControlPointOnCurve(contour3);
-			}
-		}
-		var _g1 = 0;
-		while(_g1 < contours.length) {
-			var contour4 = contours[_g1];
-			++_g1;
-			var newContour = [];
-			var _g11 = 0;
-			var _g2 = contour4.length;
-			while(_g11 < _g2) {
-				var i1 = _g11++;
-				console.log("src/Main.hx:217:","check point " + i1);
-				var point = contour4[i1];
-				newContour.push(point);
-				if(i1 > 0) {
-					var prevPoint = contour4[i1 - 1];
-					if(point.onCurve == false && prevPoint.onCurve == false) {
-						console.log("src/Main.hx:224:","two offcurve in a row " + i1);
-						var newX1 = (point.x - prevPoint.x) / 2 + prevPoint.x;
-						var newY1 = (point.y - prevPoint.y) / 2 + prevPoint.y;
-						var newPoint1 = { x : newX1, y : newY1, onCurve : true};
-						console.log("src/Main.hx:228:","point:" + Std.string(point));
-						console.log("src/Main.hx:229:","prevPoint:" + Std.string(prevPoint));
-						console.log("src/Main.hx:230:","newPoint:" + Std.string(newPoint1));
-						newContour.splice(newContour.length - 1,0,newPoint1);
-					}
-				}
-			}
-			newContour.push(newContour[0]);
-			contours[contours.indexOf(contour4)] = newContour;
 		}
 	}
 };
@@ -1476,6 +1324,151 @@ js_Boot.__string_rec = function(o,s) {
 		return o;
 	default:
 		return String(o);
+	}
+};
+var truetype_TTFGlyphUtils = function(ttf) {
+	var _g = 0;
+	var _g1 = ttf.tables;
+	while(_g < _g1.length) {
+		var table = _g1[_g];
+		++_g;
+		switch(table._hx_index) {
+		case 0:
+			var descriptions = table.descriptions;
+			console.log("src/truetype/TTFGlyphUtils.hx:24:","TGlyf descriptions: " + descriptions.length);
+			this.descriptions = descriptions;
+			this.length = this.descriptions.length;
+			break;
+		case 5:
+			var headdata = table.data;
+			this.headdata = headdata;
+			break;
+		default:
+		}
+	}
+};
+truetype_TTFGlyphUtils.__name__ = true;
+truetype_TTFGlyphUtils.prototype = {
+	getGlyphSimple: function(index) {
+		var description = this.descriptions[index];
+		var header = null;
+		var simple = null;
+		switch(description._hx_index) {
+		case 0:
+			var data = description.data;
+			var h = description.header;
+			simple = data;
+			break;
+		case 1:
+			var components = description.components;
+			var h1 = description.header;
+			throw new js__$Boot_HaxeError("TGlyphComposite " + index);
+		case 2:
+			console.log("src/truetype/TTFGlyphUtils.hx:44:","TGlyphNull " + index);
+			break;
+		}
+		return simple;
+	}
+	,getGlyphContours: function(index) {
+		var simple = this.getGlyphSimple(index);
+		var points = [];
+		var _g = 0;
+		var _g1 = simple.flags.length;
+		while(_g < _g1) {
+			var i = _g++;
+			var onCurve = simple.flags[i] % 2 != 0;
+			var point = { onCurve : onCurve, x : simple.xCoordinates[i], y : simple.yCoordinates[i]};
+			points.push(point);
+		}
+		var p = 0;
+		var c = 0;
+		var first = 1;
+		var contour = [];
+		var contours = [];
+		while(p < points.length) {
+			var point1 = points[p];
+			if(first == 1) {
+				first = 0;
+			}
+			contour.push(point1);
+			if(p == simple.endPtsOfContours[c]) {
+				++c;
+				first = 1;
+				contours.push(contour.slice());
+				contour = [];
+			}
+			++p;
+		}
+		this.adjustContours(contours);
+		return contours;
+	}
+	,adjustContours: function(contours) {
+		var hasOnCurve = function(contour) {
+			return contour.filter(function(i) {
+				return i.onCurve == true;
+			}).length > 0;
+		};
+		var shiftPoints = function(contour1) {
+			var count = 0;
+			var first = contour1[0];
+			while(first.onCurve == false) {
+				if(count++ > contour1.length) {
+					throw new js__$Boot_HaxeError("AJAJJAJJJAJJJJ");
+				}
+				contour1.push(contour1.shift());
+				first = contour1[0];
+			}
+		};
+		var addControlPointOnCurve = function(contour2) {
+			var p0 = contour2[0];
+			var p1 = contour2[contour2.length - 1];
+			var newX = (p1.x - p0.x) / 2 + p0.x;
+			var newY = (p1.y - p0.y) / 2 + p0.y;
+			var newPoint = { x : newX, y : newY, onCurve : true};
+			contour2.unshift(newPoint);
+		};
+		var _g = 0;
+		while(_g < contours.length) {
+			var contour3 = contours[_g];
+			++_g;
+			console.log("src/truetype/TTFGlyphUtils.hx:115:","ADJUST CONTOUR: ");
+			console.log("src/truetype/TTFGlyphUtils.hx:116:","hasOnCurve:" + Std.string(hasOnCurve(contour3)));
+			if(hasOnCurve(contour3)) {
+				console.log("src/truetype/TTFGlyphUtils.hx:118:","shift this one...");
+				shiftPoints(contour3);
+			} else {
+				addControlPointOnCurve(contour3);
+			}
+		}
+		var _g1 = 0;
+		while(_g1 < contours.length) {
+			var contour4 = contours[_g1];
+			++_g1;
+			var newContour = [];
+			var _g11 = 0;
+			var _g2 = contour4.length;
+			while(_g11 < _g2) {
+				var i1 = _g11++;
+				console.log("src/truetype/TTFGlyphUtils.hx:128:","check point " + i1);
+				var point = contour4[i1];
+				newContour.push(point);
+				if(i1 > 0) {
+					var prevPoint = contour4[i1 - 1];
+					if(point.onCurve == false && prevPoint.onCurve == false) {
+						console.log("src/truetype/TTFGlyphUtils.hx:135:","two offcurve in a row " + i1);
+						var newX1 = (point.x - prevPoint.x) / 2 + prevPoint.x;
+						var newY1 = (point.y - prevPoint.y) / 2 + prevPoint.y;
+						var newPoint1 = { x : newX1, y : newY1, onCurve : true};
+						console.log("src/truetype/TTFGlyphUtils.hx:139:","point:" + Std.string(point));
+						console.log("src/truetype/TTFGlyphUtils.hx:140:","prevPoint:" + Std.string(prevPoint));
+						console.log("src/truetype/TTFGlyphUtils.hx:141:","newPoint:" + Std.string(newPoint1));
+						newContour.splice(newContour.length - 1,0,newPoint1);
+					}
+				}
+			}
+			newContour.push(newContour[0]);
+			contours[contours.indexOf(contour4)] = newContour;
+		}
 	}
 };
 var $fid = 0;
