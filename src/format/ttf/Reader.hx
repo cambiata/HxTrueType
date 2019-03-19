@@ -1,3 +1,8 @@
+/**
+ * All credits to Andrey Bobkov
+ * https://github.com/b0beR/hxswfml
+ */
+
 package format.ttf;
 
 import format.ttf.Data;
