@@ -14,8 +14,8 @@ typedef Contours = Array<Contour>;
 class TTFGlyphUtils {
 	var descriptions:Array<GlyfDescription>;
 
-	public var headdata:HeadData;
-	public var length:Int;
+	public var headdata(default, null):HeadData;
+	public var length(default, null):Int;
 
 	public function new(ttf:TTF) {
 		for (table in ttf.tables) {
@@ -35,7 +35,7 @@ class TTFGlyphUtils {
 		var description:GlyfDescription = this.descriptions[index];
 		return switch description {
 			case TGlyphSimple(h, data):
-				data
+				data;
 			case TGlyphComposite(h, components):
 				// Still haven't found any Composite glyphs...
 				throw 'TGlyphComposite $index';
