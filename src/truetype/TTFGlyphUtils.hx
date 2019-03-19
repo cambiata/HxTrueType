@@ -126,20 +126,20 @@ class TTFGlyphUtils {
 		for (contour in contours) {
 			var newContour:Contour = [];
 			for (i in 0...contour.length) {
-				trace('check point ' + i);
+				// trace('check point ' + i);
 				var point = contour[i];
 				newContour.push(point);
 
 				if (i > 0) {
 					var prevPoint = contour[i - 1];
 					if (point.onCurve == false && prevPoint.onCurve == false) {
-						trace('two offcurve in a row ' + i);
+						// trace('two offcurve in a row ' + i);
 						var newX = ((point.x - prevPoint.x) / 2) + prevPoint.x;
 						var newY = ((point.y - prevPoint.y) / 2) + prevPoint.y;
 						var newPoint:ContourPoint = {x: newX, y: newY, onCurve: true};
-						trace('point:' + point);
-						trace('prevPoint:' + prevPoint);
-						trace('newPoint:' + newPoint);
+						// trace('point:' + point);
+						// trace('prevPoint:' + prevPoint);
+						// trace('newPoint:' + newPoint);
 						newContour.insert(newContour.length - 1, newPoint);
 					}
 				}
