@@ -1409,12 +1409,8 @@ truetype_TTFGlyphUtils.prototype = {
 			}).length > 0;
 		};
 		var shiftPoints = function(contour1) {
-			var count = 0;
 			var first = contour1[0];
 			while(first.onCurve == false) {
-				if(count++ > contour1.length) {
-					throw new js__$Boot_HaxeError("AJAJJAJJJAJJJJ");
-				}
 				contour1.push(contour1.shift());
 				first = contour1[0];
 			}
@@ -1431,10 +1427,7 @@ truetype_TTFGlyphUtils.prototype = {
 		while(_g < contours.length) {
 			var contour3 = contours[_g];
 			++_g;
-			console.log("src/truetype/TTFGlyphUtils.hx:115:","ADJUST CONTOUR: ");
-			console.log("src/truetype/TTFGlyphUtils.hx:116:","hasOnCurve:" + Std.string(hasOnCurve(contour3)));
 			if(hasOnCurve(contour3)) {
-				console.log("src/truetype/TTFGlyphUtils.hx:118:","shift this one...");
 				shiftPoints(contour3);
 			} else {
 				addControlPointOnCurve(contour3);
@@ -1449,19 +1442,19 @@ truetype_TTFGlyphUtils.prototype = {
 			var _g2 = contour4.length;
 			while(_g11 < _g2) {
 				var i1 = _g11++;
-				console.log("src/truetype/TTFGlyphUtils.hx:128:","check point " + i1);
+				console.log("src/truetype/TTFGlyphUtils.hx:129:","check point " + i1);
 				var point = contour4[i1];
 				newContour.push(point);
 				if(i1 > 0) {
 					var prevPoint = contour4[i1 - 1];
 					if(point.onCurve == false && prevPoint.onCurve == false) {
-						console.log("src/truetype/TTFGlyphUtils.hx:135:","two offcurve in a row " + i1);
+						console.log("src/truetype/TTFGlyphUtils.hx:136:","two offcurve in a row " + i1);
 						var newX1 = (point.x - prevPoint.x) / 2 + prevPoint.x;
 						var newY1 = (point.y - prevPoint.y) / 2 + prevPoint.y;
 						var newPoint1 = { x : newX1, y : newY1, onCurve : true};
-						console.log("src/truetype/TTFGlyphUtils.hx:139:","point:" + Std.string(point));
-						console.log("src/truetype/TTFGlyphUtils.hx:140:","prevPoint:" + Std.string(prevPoint));
-						console.log("src/truetype/TTFGlyphUtils.hx:141:","newPoint:" + Std.string(newPoint1));
+						console.log("src/truetype/TTFGlyphUtils.hx:140:","point:" + Std.string(point));
+						console.log("src/truetype/TTFGlyphUtils.hx:141:","prevPoint:" + Std.string(prevPoint));
+						console.log("src/truetype/TTFGlyphUtils.hx:142:","newPoint:" + Std.string(newPoint1));
 						newContour.splice(newContour.length - 1,0,newPoint1);
 					}
 				}
