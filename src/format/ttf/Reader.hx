@@ -28,60 +28,36 @@ class Reader {
 	}
 
 	public function read():TTF {
-		var header:Header = readHeader(); // trace(header);
-
-		var directory = readDirectory(header); // for(i in directory) trace(i);
-
-		var tables:Array<Table> = new Array();
-
-		var hheaData = readHheaTable(tablesHash.get("hhea"));
-		tables.push(THhea(hheaData));
-
-		var headData = readHeadTable(tablesHash.get("head"));
-		tables.push(THead(headData));
-
-		var maxpData = readMaxpTable(tablesHash.get("maxp"));
-		tables.push(TMaxp(maxpData));
-
-		var locaData = readLocaTable(tablesHash.get("loca"), headData, maxpData);
-		tables.push(TLoca(locaData));
-
-		var hmtxData = readHmtxTable(tablesHash.get("hmtx"), maxpData, hheaData);
-		tables.push(THmtx(hmtxData));
-
-		var cmapData = readCmapTable(tablesHash.get("cmap"));
-		tables.push(TCmap(cmapData));
-
-		var glyfData = readGlyfTable(tablesHash.get("glyf"), maxpData, locaData, cmapData, hmtxData);
-		tables.push(TGlyf(glyfData));
-
-		var kernData = readKernTable(tablesHash.get("kern"));
-		tables.push(TKern(kernData));
-
+		var header: Header_ = input;
+		var directory = readDirectory( header );
+		var hheaData = ( tablesHash.get( "hhea" ): HheaData_ );
+		var headData = ( tablesHash.get( "head" ): HeadData_ );
+		var maxpData = ( tablesHash.get( "maxp" ): MaxpData_ );
+		var locaData = readLocaTable( tablesHash.get( "loca" ), headData, maxpData );
+		var hmtxData = readHmtxTable( tablesHash.get( "hmtx" ), maxpData, hheaData );
+		var cmapData = readCmapTable( tablesHash.get( "cmap" ) );
+		var glyfData = readGlyfTable( tablesHash.get( "glyf" ), maxpData, locaData, cmapData, hmtxData );
+		var kernData = readKernTable( tablesHash.get( "kern" ) );
 		// var postData = readPostTable(tablesHash.get("post"));
-		// tables.push(TPost(postData));
-
-		var os2Data = readOS2Table(tablesHash.get("OS_2"));
-		tables.push(TOS2(os2Data));
-
+		var os2Data = ( tablesHash.get( "OS_2" ): OS2Data_ );
 		var nameData = readNameTable(tablesHash.get("_name"));
-		tables.push(TName(nameData));
-
+		var tables = [
+				THhea( hheaData ),
+				THead( headData ),
+				TMaxp( maxpData ),
+				TLoca( locaData ),
+				THmtx( hmtxData ),
+				TCmap( cmapData ),
+				TGlyf( glyfData ),
+				TKern( kernData ),
+				/*TPost( postData ),*/
+				TOS2( os2Data ),
+				TName( nameData )
+		];
 		return {
 			header: header,
 			directory: directory,
 			tables: tables
-		};
-	}
-
-	function readHeader():Header {
-		return {
-			majorVersion: input.readUInt16(),
-			minorVersion: input.readUInt16(),
-			numTables: input.readUInt16(),
-			searchRange: input.readUInt16(),
-			entrySelector: input.readUInt16(),
-			rangeShift: input.readUInt16()
 		};
 	}
 
@@ -145,84 +121,7 @@ class Reader {
 			result = 1;
 		return result;
 	}
-
-	// TABLES:
-	// hhea (horizontal header) table
-	function readHheaTable(bytes:Bytes):HheaData {
-		if (bytes == null)
-			throw 'no hhea table found';
-		var input = new BytesInput(bytes);
-		input.bigEndian = true;
-		return {
-			version: input.readInt32(),
-			ascender: input.readInt16(), // FWord (F-Units Int16)
-			descender: input.readInt16(), // FWord
-			lineGap: input.readInt16(), // FWord
-			advanceWidthMax: input.readUInt16(), // UFWord
-			minLeftSideBearing: input.readInt16(), // FWord
-			minRightSideBearing: input.readInt16(), // FWord
-			xMaxExtent: input.readInt16(), // FWord
-			caretSlopeRise: input.readInt16(),
-			caretSlopeRun: input.readInt16(),
-			caretOffset: input.readInt16(), // FWord
-			reserved: input.read(8),
-			metricDataFormat: input.readInt16(),
-			numberOfHMetrics: input.readUInt16()
-		}
-	}
-
-	// head (font header) table
-	function readHeadTable(bytes):HeadData {
-		if (bytes == null)
-			throw 'no head table found';
-		var i = new BytesInput(bytes);
-		i.bigEndian = true;
-		return {
-			version: i.readInt32(),
-			fontRevision: i.readInt32(),
-			checkSumAdjustment: i.readInt32(),
-			magicNumber: i.readInt32(), // 0x5F0F3CF5
-			flags: i.readUInt16(),
-			unitsPerEm: i.readUInt16(), // range from 64 to 16384
-			created: i.readDouble(),
-			modified: i.readDouble(),
-			xMin: i.readInt16(), // FWord
-			yMin: i.readInt16(), // FWord
-			xMax: i.readInt16(), // FWord
-			yMax: i.readInt16(), // FWord
-			macStyle: i.readUInt16(),
-			lowestRecPPEM: i.readUInt16(),
-			fontDirectionHint: i.readInt16(),
-			indexToLocFormat: i.readInt16(),
-			glyphDataFormat: i.readInt16()
-		};
-	}
-
-	// maxp (maximum profile) table
-	function readMaxpTable(bytes:Bytes):MaxpData {
-		if (bytes == null)
-			throw 'no maxp table found';
-		var input = new BytesInput(bytes);
-		input.bigEndian = true;
-		return {
-			versionNumber: input.readInt32(),
-			numGlyphs: input.readUInt16(),
-			maxPoints: input.readUInt16(),
-			maxContours: input.readUInt16(),
-			maxComponentPoints: input.readUInt16(),
-			maxComponentContours: input.readUInt16(),
-			maxZones: input.readUInt16(),
-			maxTwilightPoints: input.readUInt16(),
-			maxStorage: input.readUInt16(),
-			maxFunctionDefs: input.readUInt16(),
-			maxInstructionDefs: input.readUInt16(),
-			maxStackElements: input.readUInt16(),
-			maxSizeOfInstructions: input.readUInt16(),
-			maxComponentElements: input.readUInt16(),
-			maxComponentDepth: input.readUInt16(),
-		}
-	}
-
+	
 	// loca (glyph location) table
 	function readLocaTable(bytes:Bytes, head:HeadData, maxp:MaxpData):LocaData {
 		if (bytes == null)
@@ -784,79 +683,6 @@ class Reader {
 		 */
 
 		return nameRecords;
-	}
-
-	// 0S2 (compatibility) table
-	function readOS2Table(bytes:Bytes):OS2Data {
-		var input = new BytesInput(bytes);
-		input.bigEndian = true;
-		var os2Data = {
-			version: input.readUInt16(),
-			xAvgCharWidth: input.readInt16(),
-			usWeightClass: input.readUInt16(),
-			usWidthClass: input.readUInt16(),
-			fsType: input.readInt16(),
-			ySubscriptXSize: input.readInt16(),
-			ySubscriptYSize: input.readInt16(),
-			ySubscriptXOffset: input.readInt16(),
-			ySubscriptYOffset: input.readInt16(),
-			ySuperscriptXSize: input.readInt16(),
-			ySuperscriptYSize: input.readInt16(),
-			ySuperscriptXOffset: input.readInt16(),
-			ySuperscriptYOffset: input.readInt16(),
-			yStrikeoutSize: input.readInt16(),
-			yStrikeoutPosition: input.readInt16(),
-			sFamilyClass: input.readInt16(),
-
-			// panose start
-			bFamilyType: input.readByte(),
-			bSerifStyle: input.readByte(),
-			bWeight: input.readByte(),
-			bProportion: input.readByte(),
-			bContrast: input.readByte(),
-			bStrokeVariation: input.readByte(),
-			bArmStyle: input.readByte(),
-			bLetterform: input.readByte(),
-			bMidline: input.readByte(),
-			bXHeight: input.readByte(),
-			// panose end
-
-			ulUnicodeRange1: input.readInt32(),
-			ulUnicodeRange2: input.readInt32(),
-			ulUnicodeRange3: input.readInt32(),
-			ulUnicodeRange4: input.readInt32(),
-			achVendorID: input.readInt32(),
-			fsSelection: input.readInt16(),
-			usFirstCharIndex: input.readUInt16(),
-			usLastCharIndex: input.readUInt16(),
-			sTypoAscender: input.readInt16(),
-			sTypoDescender: input.readInt16(),
-			sTypoLineGap: input.readInt16(),
-			usWinAscent: input.readUInt16(),
-			usWinDescent: input.readUInt16()
-			/*
-						  ulCodePageRange1 : input.readInt32(),
-						  ulCodePageRange2 : input.readInt32(),
-
-				sxHeight:-1,
-						  sCapHeight:-1,
-						  usDefaultChar:-1,
-						  usBreakChar:-1,
-						  usMaxContext:-1
-			 */
-		}
-
-		/*
-				  if (os2Data.version == 2)
-			{
-			  os2Data.sxHeight = input.readInt16();
-			  os2Data.sCapHeight = input.readInt16();
-			  os2Data.usDefaultChar = input.readUInt16();
-			  os2Data.usBreakChar = input.readUInt16();
-			  os2Data.usMaxContext = input.readUInt16();
-			}
-		 */
-		return os2Data;
 	}
 }
 

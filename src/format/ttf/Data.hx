@@ -4,7 +4,7 @@
  */
 
 package format.ttf;
-
+import haxe.io.BytesInput;
 import haxe.Int32;
 import haxe.io.Bytes;
 
@@ -23,6 +23,24 @@ typedef Header = {
 	rangeShift:Int,
 }
 
+abstract Header_( Header ) to Header {
+	public inline function new( header: Header ){
+		this = header;
+	}
+    @:from
+    static public inline 
+	function fromInput( input: haxe.io.Input ): Header_ {
+		return new Header_( {
+			majorVersion:	input.readUInt16(),
+			minorVersion:	input.readUInt16(),
+			numTables:		input.readUInt16(),
+			searchRange:	input.readUInt16(),
+			entrySelector:	input.readUInt16(),
+			rangeShift:		input.readUInt16()
+		} );
+    }
+}
+    
 typedef Entry = {
 	tableId:Int32,
 	tableName:String,
@@ -165,6 +183,39 @@ typedef HeadData = {
 	glyphDataFormat:Int
 }
 
+// head (font header) table
+abstract HeadData_( HeadData ) to HeadData {
+	public inline function new( headData: HeadData ){
+		this = headData;
+	}
+    @:from
+    static public inline 
+	function fromBytes( bytes: Bytes ): HeadData_ {
+		if( bytes == null ) throw 'no head table found';
+		var i = new BytesInput( bytes );
+		i.bigEndian = true;
+		return new HeadData_( {
+			version: 			i.readInt32(),
+			fontRevision: 		i.readInt32(),
+			checkSumAdjustment: i.readInt32(),
+			magicNumber: 		i.readInt32(), // 0x5F0F3CF5
+			flags: 				i.readUInt16(),
+			unitsPerEm: 		i.readUInt16(), // range from 64 to 16384
+			created: 			i.readDouble(),
+			modified: 			i.readDouble(),
+			xMin: 				i.readInt16(), // FWord
+			yMin: 				i.readInt16(), // FWord
+			xMax: 				i.readInt16(), // FWord
+			yMax: 				i.readInt16(), // FWord
+			macStyle: 			i.readUInt16(),
+			lowestRecPPEM: 		i.readUInt16(),
+			fontDirectionHint: 	i.readInt16(),
+			indexToLocFormat: 	i.readInt16(),
+			glyphDataFormat: 	i.readInt16()
+		} );
+	}
+}
+
 // HHEA
 typedef HheaData = {
 	version:Int32,
@@ -181,6 +232,37 @@ typedef HheaData = {
 	reserved:Bytes,
 	metricDataFormat:Int,
 	numberOfHMetrics:Int
+}
+
+// TABLES:
+// hhea (horizontal header) table
+abstract HheaData_( HheaData ) to HheaData {
+	public inline function new( hheaData: HheaData ){
+		this = hheaData;
+	}
+	@:from
+	static public inline 
+	function fromBytes( bytes: Bytes ): HheaData_ {
+		if( bytes == null ) throw 'no hhea table found';
+		var i = new BytesInput(bytes);
+		i.bigEndian = true;
+		return new HheaData_( {
+			version: 				i.readInt32(),
+			ascender: 				i.readInt16(), // FWord (F-Units Int16)
+			descender: 				i.readInt16(), // FWord
+			lineGap: 				i.readInt16(), // FWord
+			advanceWidthMax: 		i.readUInt16(), // UFWord
+			minLeftSideBearing: 	i.readInt16(), // FWord
+			minRightSideBearing: 	i.readInt16(), // FWord
+			xMaxExtent: 			i.readInt16(), // FWord
+			caretSlopeRise: 		i.readInt16(),
+			caretSlopeRun: 			i.readInt16(),
+			caretOffset: 			i.readInt16(), // FWord
+			reserved: 				i.read(8),
+			metricDataFormat: 		i.readInt16(),
+			numberOfHMetrics: 		i.readUInt16()
+		} );
+	}
 }
 
 // LOCA
@@ -206,6 +288,37 @@ typedef MaxpData = {
 	maxSizeOfInstructions:Int,
 	maxComponentElements:Int,
 	maxComponentDepth:Int
+}
+
+// maxp (maximum profile) table
+abstract MaxpData_( MaxpData ) to MaxpData {
+	public inline function new( maxpData: MaxpData ){
+		this = maxpData;
+	}
+	@:from
+	static public inline 
+	function fromBytes( bytes: Bytes ): MaxpData_ {
+		if( bytes == null ) throw 'no maxp table found';
+		var i = new BytesInput(bytes);
+		i.bigEndian = true;
+		return new MaxpData_( {
+			versionNumber:			i.readInt32(),
+			numGlyphs: 				i.readUInt16(),
+			maxPoints:				i.readUInt16(),
+			maxContours:			i.readUInt16(),
+			maxComponentPoints: 	i.readUInt16(),
+			maxComponentContours: 	i.readUInt16(),
+			maxZones: 				i.readUInt16(),
+			maxTwilightPoints: 		i.readUInt16(),
+			maxStorage: 			i.readUInt16(),
+			maxFunctionDefs: 		i.readUInt16(),
+			maxInstructionDefs: 	i.readUInt16(),
+			maxStackElements: 		i.readUInt16(),
+			maxSizeOfInstructions: 	i.readUInt16(),
+			maxComponentElements: 	i.readUInt16(),
+			maxComponentDepth: 		i.readUInt16()
+		});
+	}
 }
 
 // POST
@@ -276,6 +389,87 @@ typedef OS2Data = {
 		usMaxContext : Null<Int>
 	 */
 }
+
+// 0S2 (compatibility) table
+abstract OS2Data_( OS2Data ) to OS2Data {
+	public inline function new( oS2Data: OS2Data ){
+		this = oS2Data;
+	}
+	@:from
+	static public inline 
+	function fromBytes( bytes: Bytes ): OS2Data_ {
+		if( bytes == null ) throw 'no maxp table found';
+		var i = new BytesInput( bytes );
+		i.bigEndian = true;
+		return new OS2Data_( {
+			version: 				i.readUInt16(),
+			xAvgCharWidth: 			i.readInt16(),
+			usWeightClass: 			i.readUInt16(),
+			usWidthClass: 			i.readUInt16(),
+			fsType: 				i.readInt16(),
+			ySubscriptXSize: 		i.readInt16(),
+			ySubscriptYSize: 		i.readInt16(),
+			ySubscriptXOffset: 		i.readInt16(),
+			ySubscriptYOffset: 		i.readInt16(),
+			ySuperscriptXSize: 		i.readInt16(),
+			ySuperscriptYSize: 		i.readInt16(),
+			ySuperscriptXOffset: 	i.readInt16(),
+			ySuperscriptYOffset: 	i.readInt16(),
+			yStrikeoutSize: 		i.readInt16(),
+			yStrikeoutPosition: 	i.readInt16(),
+			sFamilyClass: 			i.readInt16(),
+
+			// panose start
+			bFamilyType: 			i.readByte(),
+			bSerifStyle: 			i.readByte(),
+			bWeight: 				i.readByte(),
+			bProportion: 			i.readByte(),
+			bContrast: 				i.readByte(),
+			bStrokeVariation: 		i.readByte(),
+			bArmStyle: 				i.readByte(),
+			bLetterform: 			i.readByte(),
+			bMidline: 				i.readByte(),
+			bXHeight: 				i.readByte(),
+			// panose end
+
+			ulUnicodeRange1: 		i.readInt32(),
+			ulUnicodeRange2: 		i.readInt32(),
+			ulUnicodeRange3: 		i.readInt32(),
+			ulUnicodeRange4: 		i.readInt32(),
+			achVendorID: 			i.readInt32(),
+			fsSelection: 			i.readInt16(),
+			usFirstCharIndex: 		i.readUInt16(),
+			usLastCharIndex: 		i.readUInt16(),
+			sTypoAscender: 			i.readInt16(),
+			sTypoDescender: 		i.readInt16(),
+			sTypoLineGap: 			i.readInt16(),
+			usWinAscent: 			i.readUInt16(),
+			usWinDescent: 			i.readUInt16()
+			/*
+						  ulCodePageRange1 : i.readInt32(),
+						  ulCodePageRange2 : i.readInt32(),
+
+				sxHeight:-1,
+						  sCapHeight:-1,
+						  usDefaultChar:-1,
+						  usBreakChar:-1,
+						  usMaxContext:-1
+			 */
+		} );
+
+		/*
+				  if (os2Data.version == 2)
+			{
+			  os2Data.sxHeight = i.readInt16();
+			  os2Data.sCapHeight = i.readInt16();
+			  os2Data.usDefaultChar = i.readUInt16();
+			  os2Data.usBreakChar = i.readUInt16();
+			  os2Data.usMaxContext = i.readUInt16();
+			}
+		*/
+	}
+}
+
 
 typedef UnicodeRange = {
 	start:Int,
