@@ -3,6 +3,8 @@
 # -resource fonts/arial.ttf@font
 -resource fonts/AvenirNextCyr-Bold.ttf@font
 -cp src
--main Main
+-main CanvasTest
 -js public/test.js
 
+# line below useful for automatically opening if your on mac, remove hash to use.
+# -cmd open public/index.html
