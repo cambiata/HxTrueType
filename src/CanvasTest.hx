@@ -4,9 +4,9 @@ import haxe.io.BytesInput;
 import truetype.TTFGlyphUtils;
 import format.ttf.Data;
 
-class Main {
+class CanvasTest {
 	static public function main()
-		new Main();
+		new CanvasTest();
 
 	var descriptions:Array<GlyfDescription>;
 
