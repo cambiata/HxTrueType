@@ -39,6 +39,16 @@ abstract Header_( Header ) to Header {
 			rangeShift:		input.readUInt16()
 		} );
     }
+    public inline
+    function write( output: haxe.io.Output ): haxe.io.Output {
+        output.writeUInt16( this.majorVersion );
+        output.writeUInt16( this.minorVersion );
+        output.writeUInt16( this.numTables );
+        output.writeUInt16( this.searchRange );
+        output.writeUInt16( this.entrySelector );
+        output.writeUInt16( this.rangeShift );
+        return output;
+    }
 }
     
 typedef Entry = {
@@ -214,6 +224,27 @@ abstract HeadData_( HeadData ) to HeadData {
 			glyphDataFormat: 	i.readInt16()
 		} );
 	}
+    public inline
+    function write( o: haxe.io.Output ): haxe.io.Output {
+        o.writeInt32( this.version );
+        o.writeInt32( this.fontRevision );
+        o.writeInt32( this.checkSumAdjustment );
+        o.writeInt32( this.magicNumber );
+        o.writeUInt16( this.flags );
+        o.writeUInt16( this.unitsPerEm );
+        o.writeDouble( this.created );
+        o.writeDouble( this.modified );
+        o.writeInt16( this.xMin );
+        o.writeInt16( this.yMin );
+        o.writeInt16( this.xMax );
+        o.writeInt16( this.yMax );
+        o.writeUInt16( this.macStyle );
+        o.writeUInt16( this.lowestRecPPEM );
+        o.writeInt16( this.fontDirectionHint );
+        o.writeInt16( this.indexToLocFormat );
+        o.writeInt16( this.glphDataFormat );
+        return o;
+    }
 }
 
 // HHEA
@@ -263,6 +294,23 @@ abstract HheaData_( HheaData ) to HheaData {
 			numberOfHMetrics: 		i.readUInt16()
 		} );
 	}
+    public inline
+    function write( o: haxe.io.Output ): haxe.io.Output {
+        o.writeInt32( this.version );
+        o.writeInt16( this.ascender );
+        o.writeInt16( this.desender );
+        o.writeInt16( this.lineGap );
+        o.writeUInt16( this.advanceWidthMax );
+        o.writeInt16( this.minLeftSideBearing );
+        o.writeInt16( this.minRightSideBearing );
+        o.writeInt16( this.xMaxExtent );
+        o.writeInt16( this.caretSlopeRise );
+        o.writeInt16( this.caretSlopeRun );
+        o.writeInt16( this.caretOffset );
+        o.write( this.reserved );
+        o.writeInt16( this.metrixDataFormat );
+        o.writeInt16( this.numberOfHMetrics );
+        return o;
 }
 
 // LOCA
@@ -319,6 +367,24 @@ abstract MaxpData_( MaxpData ) to MaxpData {
 			maxComponentDepth: 		i.readUInt16()
 		});
 	}
+    public inline
+    function write( o: haxe.io.Output ): haxe.io.Output {
+        o.writeInt32( this.versionNumber );
+		o.writeInt16( this.numGlyphs );
+		o.writeInt16( this.maxPoints );
+		o.writeInt16( this.maxContours );
+		o.writeInt16( this.maxComponentPoints );
+		o.writeInt16( this.maxComponentContours );
+		o.writeInt16( this.maxZones );
+		o.writeInt16( this.maxTwilightPoints );
+		o.writeInt16( this.maxStorage );
+		o.writeInt16( this.maxFunctionDefs );
+		o.writeInt16( this.maxInstructionDefs );
+		o.writeInt16( this.maxStackElements );
+		o.writeInt16( this.maxSizeOfInstructions );
+		o.writeInt16( this.maxComponentElements );
+		o.writeInt16( this.maxComponentDepth );
+        return o;
 }
 
 // POST
@@ -468,6 +534,51 @@ abstract OS2Data_( OS2Data ) to OS2Data {
 			}
 		*/
 	}
+    public inline
+    function write( o: haxe.io.Output ): haxe.io.Output {
+        o.writeInt16( this.version );
+		o.writeInt16( this.xAvgCharWidth );
+		o.writeInt16( this.usWeightClass );
+		o.writeInt16( this.usWidthClass );
+		o.writeInt16( this.fsType );
+		o.writeInt16( this.ySubscriptXSize );
+		o.writeInt16( this.ySubscriptYSize );
+		o.writeInt16( this.ySubscriptXOffset );
+		o.writeInt16( this.ySubscriptYOffset );
+		o.writeInt16( this.ySuperscriptXSize );
+		o.writeInt16( this.ySuperscriptYSize );
+		o.writeInt16( this.ySuperscriptXOffset );
+		o.writeInt16( this.ySuperscriptYOffset );
+		o.writeInt16( this.yStrikeoutSize );
+		o.writeInt16( this.yStrikeoutPosition );
+		o.writeInt16( this.sFamilyClass );
+
+		// panose start
+		o.writeByte( this.bFamilyType );
+		o.writeByte( this.bSerifStyle );
+		o.writeByte( this.bWeight );
+		o.writeByte( this.bProportion );
+		o.writeByte( this.bContrast );
+		o.writeByte( this.bStrokeVariation );
+		o.writeByte( this.bArmStyle );
+	    o.writeByte( this.bLetterform );
+		o.writeByte( this.bMidline );
+		o.writeByte( this.bXHeight );
+		// panose end
+
+	    o.write32( this.ulUnicodeRange1 );
+		o.write32( this.ulUnicodeRange2 );
+		o.write32( this.ulUnicodeRange3 );
+		o.write32( this.ulUnicodeRange4 );
+		o.write32( this.achVendorID );
+		o.write16( this.fsSelection );
+		o.write16( this.usFirstCharIndex );
+		o.write16( this.usLastCharIndex );
+		o.write16( this.sTypoAscender );
+		o.write16( this.sTypoDescender );
+		o.write16( this.sTypoLineGap );
+		o.write16( this.usWinAscent );
+		o.write16( this.usWinDescent );
 }
 
 
