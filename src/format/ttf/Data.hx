@@ -242,7 +242,7 @@ abstract HeadData_( HeadData ) to HeadData {
         o.writeUInt16( this.lowestRecPPEM );
         o.writeInt16( this.fontDirectionHint );
         o.writeInt16( this.indexToLocFormat );
-        o.writeInt16( this.glphDataFormat );
+        o.writeInt16( this.glyphDataFormat );
         return o;
     }
 }
@@ -298,7 +298,7 @@ abstract HheaData_( HheaData ) to HheaData {
     function write( o: haxe.io.Output ): haxe.io.Output {
         o.writeInt32( this.version );
         o.writeInt16( this.ascender );
-        o.writeInt16( this.desender );
+        o.writeInt16( this.descender );
         o.writeInt16( this.lineGap );
         o.writeUInt16( this.advanceWidthMax );
         o.writeInt16( this.minLeftSideBearing );
@@ -308,9 +308,10 @@ abstract HheaData_( HheaData ) to HheaData {
         o.writeInt16( this.caretSlopeRun );
         o.writeInt16( this.caretOffset );
         o.write( this.reserved );
-        o.writeInt16( this.metrixDataFormat );
+        o.writeInt16( this.metricDataFormat );
         o.writeInt16( this.numberOfHMetrics );
         return o;
+    }
 }
 
 // LOCA
@@ -385,6 +386,7 @@ abstract MaxpData_( MaxpData ) to MaxpData {
 		o.writeInt16( this.maxComponentElements );
 		o.writeInt16( this.maxComponentDepth );
         return o;
+    }
 }
 
 // POST
@@ -566,19 +568,21 @@ abstract OS2Data_( OS2Data ) to OS2Data {
 		o.writeByte( this.bXHeight );
 		// panose end
 
-	    o.write32( this.ulUnicodeRange1 );
-		o.write32( this.ulUnicodeRange2 );
-		o.write32( this.ulUnicodeRange3 );
-		o.write32( this.ulUnicodeRange4 );
-		o.write32( this.achVendorID );
-		o.write16( this.fsSelection );
-		o.write16( this.usFirstCharIndex );
-		o.write16( this.usLastCharIndex );
-		o.write16( this.sTypoAscender );
-		o.write16( this.sTypoDescender );
-		o.write16( this.sTypoLineGap );
-		o.write16( this.usWinAscent );
-		o.write16( this.usWinDescent );
+	    o.writeInt32( this.ulUnicodeRange1 );
+		o.writeInt32( this.ulUnicodeRange2 );
+		o.writeInt32( this.ulUnicodeRange3 );
+		o.writeInt32( this.ulUnicodeRange4 );
+		o.writeInt32( this.achVendorID );
+		o.writeInt16( this.fsSelection );
+		o.writeUInt16( this.usFirstCharIndex );
+		o.writeUInt16( this.usLastCharIndex );
+		o.writeInt16( this.sTypoAscender );
+		o.writeInt16( this.sTypoDescender );
+		o.writeInt16( this.sTypoLineGap );
+		o.writeUInt16( this.usWinAscent );
+		o.writeUInt16( this.usWinDescent );
+        return o;
+    }
 }
 
 
