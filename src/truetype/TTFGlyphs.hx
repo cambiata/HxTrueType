@@ -2,22 +2,30 @@ package truetype;
 
 import format.ttf.Data;
 
-typedef ContourPoint = {
+
+typedef GlyphContourPoint = {
 	onCurve:Bool,
 	x:Float,
 	y:Float,
 };
 
-typedef Contour = Array<ContourPoint>;
-typedef Contours = Array<Contour>;
+typedef GlyphContour = Array<GlyphContourPoint>;
+typedef GlyphContours = Array<GlyphContour>;
 
-class TTFGlyphUtils {
-	var descriptions:Array<GlyfDescription>;
 
+class TTFGlyphs {
 	public var headdata(default, null):HeadData;
 	public var length(default, null):Int;
+	var descriptions:Array<GlyfDescription>;
 
-	public function new(ttf:TTF) {
+	public function new(ttfBytes:haxe.io.Bytes) {
+		var bytesInput = new haxe.io.BytesInput(ttfBytes);
+		var ttfReader:format.ttf.Reader = new format.ttf.Reader(bytesInput);
+		var ttf:TTF = ttfReader.read();
+		this.buildTables(ttf);
+	}
+
+	function buildTables(ttf:TTF) {
 		for (table in ttf.tables) {
 			switch table {
 				case TGlyf(descriptions):
@@ -31,7 +39,7 @@ class TTFGlyphUtils {
 		}
 	}
 
-	public function getGlyphSimple(index):GlyphSimple {
+	public function getGlyphSimple(index:Int):GlyphSimple {
 		var description:GlyfDescription = this.descriptions[index];
 		return switch description {
 			case TGlyphSimple(h, data):
@@ -46,7 +54,11 @@ class TTFGlyphUtils {
 		}
 	}
 
-	public function getGlyphHeader(index):GlyphHeader {
+	public function isGlyphSimple(index:Int):Bool {
+		return this.getGlyphSimple(index) != null;
+	}
+
+	public function getGlyphHeader(index:Int):GlyphHeader {
 		var description:GlyfDescription = this.descriptions[index];
 		return switch description {
 			case TGlyphSimple(header, data):
@@ -59,12 +71,12 @@ class TTFGlyphUtils {
 		}
 	}
 
-	public function getGlyphContours(index:Int):Array<Array<ContourPoint>> {
+	public function getGlyphContours(index:Int):GlyphContours {
 		var simple:GlyphSimple = getGlyphSimple(index);
-		var points:Contour = [];
+		var points:GlyphContour = [];
 		for (i in 0...simple.flags.length) {
 			var onCurve = !(simple.flags[i] % 2 == 0);
-			var point:ContourPoint = {
+			var point:GlyphContourPoint = {
 				onCurve: onCurve,
 				x: simple.xCoordinates[i],
 				y: simple.yCoordinates[i],
@@ -77,7 +89,7 @@ class TTFGlyphUtils {
 		var c = 0;
 		var first = 1;
 
-		var contour:Array<ContourPoint> = [];
+		var contour:GlyphContour = [];
 		var contours = [];
 		while (p < points.length) {
 			var point = points[p];
@@ -100,13 +112,13 @@ class TTFGlyphUtils {
 		return contours;
 	}
 
-	public function adjustContours(contours:Contours) {
+	public function adjustContours(contours:GlyphContours) {
 		// Does this shape have an OnCurve point
-		function hasOnCurve(contour:Contour):Bool
+		function hasOnCurve(contour:GlyphContour):Bool
 			return contour.filter(i -> i.onCurve == true).length > 0;
 
 		// Make first point an OnCurve one
-		function shiftPoints(contour:Contour) {
+		function shiftPoints(contour:GlyphContour) {
 			var first = contour[0];
 			while (first.onCurve == false) {
 				contour.push(contour.shift());
@@ -115,12 +127,12 @@ class TTFGlyphUtils {
 		}
 
 		// Create an OnCurve starting point
-		function addControlPointOnCurve(contour:Contour) {
+		function addControlPointOnCurve(contour:GlyphContour) {
 			var p0 = contour[0];
 			var p1 = contour[contour.length - 1];
 			var newX = ((p1.x - p0.x) / 2) + p0.x;
 			var newY = ((p1.y - p0.y) / 2) + p0.y;
-			var newPoint:ContourPoint = {x: newX, y: newY, onCurve: true};
+			var newPoint:GlyphContourPoint = {x: newX, y: newY, onCurve: true};
 			contour.unshift(newPoint);
 		}
 
@@ -137,7 +149,7 @@ class TTFGlyphUtils {
 
 		// Add OnCurve points between succeeding OffCurve points
 		for (contour in contours) {
-			var newContour:Contour = [];
+			var newContour:GlyphContour = [];
 			for (i in 0...contour.length) {
 				// trace('check point ' + i);
 				var point = contour[i];
@@ -149,7 +161,7 @@ class TTFGlyphUtils {
 						// trace('two offcurve in a row ' + i);
 						var newX = ((point.x - prevPoint.x) / 2) + prevPoint.x;
 						var newY = ((point.y - prevPoint.y) / 2) + prevPoint.y;
-						var newPoint:ContourPoint = {x: newX, y: newY, onCurve: true};
+						var newPoint:GlyphContourPoint = {x: newX, y: newY, onCurve: true};
 						// trace('point:' + point);
 						// trace('prevPoint:' + prevPoint);
 						// trace('newPoint:' + newPoint);

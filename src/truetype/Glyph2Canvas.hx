@@ -1,0 +1,97 @@
+package truetype;
+
+import js.html.svg.SVGElement;
+import js.Browser;
+import js.Browser.document;
+import js.html.CanvasElement;
+import haxe.io.BytesInput;
+import truetype.TTFGlyphs;
+import format.ttf.Data;
+
+class Glyph2Canvas {
+	static public function getGlyphCanvas(ttfGlyphs:TTFGlyphs, index:Int, displayScale:Float = .5, translateY:Float=-1350, fillColor:String = "#00a", drawPoints:Bool = false):CanvasElement {
+		// Only works with GlyphSimple right now...
+		// Seems to cover most cases
+		var glyph:GlyphSimple = ttfGlyphs.getGlyphSimple(index);
+		if (glyph == null)
+			throw 'Glyph index $index is not of type GlyphSimple';
+
+		var glyphHeader:GlyphHeader = ttfGlyphs.getGlyphHeader(index);
+		var contours = ttfGlyphs.getGlyphContours(index);
+		var canvas:js.html.CanvasElement = Browser.document.createCanvasElement();
+
+        var scale = (64 / ttfGlyphs.headdata.unitsPerEm) * displayScale;
+		var canvasWidth = (glyphHeader.xMax + 5) * scale;
+		var canvasHeight = (ttfGlyphs.headdata.yMax + 300) * scale;
+
+        canvas.setAttribute('height', '${canvasHeight}px');
+		canvas.setAttribute('width', '${canvasWidth}px');
+		var ctx:js.html.CanvasRenderingContext2D = canvas.getContext2d();
+		ctx.scale(scale, -scale);
+		ctx.translate(0, translateY);
+
+		// --------------------------------------------------------------------
+		// Draw bounding box
+		// ctx.beginPath();
+		// ctx.rect(glyphHeader.xMin, glyphHeader.yMin, glyphHeader.xMax - glyphHeader.xMin, glyphHeader.yMax - glyphHeader.yMin);
+		// ctx.stroke();
+
+		// ctx.beginPath();
+		// ctx.rect(0, 0, glyphHeader.xMax, glyphHeader.yMax);
+        // ctx.stroke();
+        
+		//--------------------------------------------------------------------
+		// Draw glyph outline
+		ctx.beginPath();
+
+		for (contour in contours) {
+			var offCurvePoint:GlyphContourPoint = null;
+			for (i in 0...contour.length) {
+				var point = contour[i];
+				if (i == 0) {
+					ctx.moveTo(point.x, point.y);
+				} else {
+					var prevPoint = contour[i - 1];
+					if (point.onCurve) {
+						if (prevPoint.onCurve) {
+							ctx.lineTo(point.x, point.y);
+						} else {
+							ctx.quadraticCurveTo(offCurvePoint.x, offCurvePoint.y, point.x, point.y);
+						}
+					} else {
+						offCurvePoint = contour[i];
+					}
+				}
+			}
+		}
+		ctx.fillStyle = '#00a';
+		ctx.fill();
+		// ctx.lineWidth = 3;
+		// ctx.stroke();
+
+		// ----------------------------------------
+		// Draw points
+		if (drawPoints) {
+			for (contour in contours) {
+				for (point in contour) {
+					if (point == contour[0]) {
+						ctx.beginPath();
+						ctx.fillStyle = '#0000ff';
+						ctx.rect(point.x - 20, point.y - 20, 40, 40);
+						ctx.fill();
+					}
+
+					ctx.beginPath();
+					if (point.onCurve)
+						ctx.fillStyle = '#ff0000';
+					else
+						ctx.fillStyle = '#00ff00';
+					ctx.rect(point.x - 10, point.y - 10, 20, 20);
+					ctx.fill();
+				}
+			}
+        }
+        //--------------------------------------------------
+		return canvas;
+	}    
+}
