@@ -4,7 +4,6 @@ import haxe.DynamicAccess;
 import truetype.GlyphOutline;
 import truetype.TTFGlyphs;
 
-using StringTools;
 using Std;
 
 class GlyphTools {
@@ -37,7 +36,6 @@ class GlyphTools {
     
     static public function glyphMapFromJson(jsonString:String):GlyphMap {
         var mapObj:DynamicAccess<GlyphOutlines> = haxe.Json.parse(jsonString);
-        trace(mapObj);
         var map = new GlyphMap();
         for (index => outlines in mapObj) {
             map.set(Std.parseInt(index), outlines);

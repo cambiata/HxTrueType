@@ -18,8 +18,7 @@ class TTFGlyphs {
 	function buildTables(ttf:TTF) {
 		for (table in ttf.tables) {
 			switch table {
-				case TGlyf(descriptions):
-					trace('TGlyf descriptions: ' + descriptions.length);
+				case TGlyf(descriptions):					
 					this.descriptions = descriptions;
 					this.length = this.descriptions.length;
 				case THead(headdata):
@@ -66,11 +65,13 @@ class TTFGlyphs {
 		var points:GlyphOutline = [];
 		for (i in 0...simple.flags.length) {
 			var onCurve = !(simple.flags[i] % 2 == 0);
+			
 			var point:GlyphOutlinePoint = {
-				c: onCurve,
+				// c: onCurve,
 				x: simple.xCoordinates[i],
 				y: simple.yCoordinates[i],
 			};
+			if (onCurve) point.c = true;
 			points.push(point);
 		}
 
