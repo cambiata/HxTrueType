@@ -67,7 +67,7 @@ class TTFGlyphs {
 		for (i in 0...simple.flags.length) {
 			var onCurve = !(simple.flags[i] % 2 == 0);
 			var point:GlyphOutlinePoint = {
-				onCurve: onCurve,
+				c: onCurve,
 				x: simple.xCoordinates[i],
 				y: simple.yCoordinates[i],
 			};
@@ -105,12 +105,12 @@ class TTFGlyphs {
 	public function adjustOutlines(outlines:GlyphOutlines) {
 		// Does this shape have an OnCurve point
 		function hasOnCurve(outline:GlyphOutline):Bool
-			return outline.filter(i -> i.onCurve == true).length > 0;
+			return outline.filter(i -> i.c == true).length > 0;
 
 		// Make first point an OnCurve one
 		function shiftPoints(outline:GlyphOutline) {
 			var first = outline[0];
-			while (first.onCurve == false) {
+			while (first.c == false) {
 				outline.push(outline.shift());
 				first = outline[0];
 			}
@@ -122,7 +122,7 @@ class TTFGlyphs {
 			var p1 = outline[outline.length - 1];
 			var newX = ((p1.x - p0.x) / 2) + p0.x;
 			var newY = ((p1.y - p0.y) / 2) + p0.y;
-			var newPoint:GlyphOutlinePoint = {x: newX, y: newY, onCurve: true};
+			var newPoint:GlyphOutlinePoint = {x: newX, y: newY, c: true};
 			outline.unshift(newPoint);
 		}
 
@@ -147,11 +147,11 @@ class TTFGlyphs {
 
 				if (i > 0) {
 					var prevPoint = outline[i - 1];
-					if (point.onCurve == false && prevPoint.onCurve == false) {
+					if (point.c == false && prevPoint.c == false) {
 						// trace('two offcurve in a row ' + i);
 						var newX = ((point.x - prevPoint.x) / 2) + prevPoint.x;
 						var newY = ((point.y - prevPoint.y) / 2) + prevPoint.y;
-						var newPoint:GlyphOutlinePoint = {x: newX, y: newY, onCurve: true};
+						var newPoint:GlyphOutlinePoint = {x: newX, y: newY, c: true};
 						// trace('point:' + point);
 						// trace('prevPoint:' + prevPoint);
 						// trace('newPoint:' + newPoint);

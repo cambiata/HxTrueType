@@ -1,3 +1,6 @@
+import haxe.Json;
+import truetype.GlyphTools;
+import truetype.GlyphOutline.GlyphMap;
 import js.html.svg.SVGElement;
 import js.Browser;
 import js.Browser.document;
@@ -12,6 +15,23 @@ class Example {
 	static public function main() {
 		var bytes = haxe.Resource.getBytes("font");
 		var ttfGlyphs:TTFGlyphs = new TTFGlyphs(bytes);
+
+		//-----------------------------------------------
+
+		var map = truetype.GlyphTools.createGlyphMap(10, 12, ttfGlyphs);
+		// for(glyphIndex => outlines in map) {
+		// 	trace('index: $glyphIndex - outlines: $outlines');
+		// }
+		var jsonStr = GlyphTools.glyphMapToJson(map);
+		trace(jsonStr);
+		var map2 = GlyphTools.glyphMapFromJson(jsonStr);
+		trace(map2);
+
+		trace(map.string() == map2.string());
+
+
+		//-----------------------------------------------
+
         var scale:Float = 3;
         var translateY = -1000;
 

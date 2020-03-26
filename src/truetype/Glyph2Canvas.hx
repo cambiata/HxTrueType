@@ -50,8 +50,8 @@ class Glyph2Canvas {
 					ctx.moveTo(point.x, point.y);
 				} else {
 					var prevPoint = outline[i - 1];
-					if (point.onCurve) {
-						if (prevPoint.onCurve) {
+					if (point.c) { // curve?
+						if (prevPoint.c) {
 							ctx.lineTo(point.x, point.y);
 						} else {
 							ctx.quadraticCurveTo(offCurvePoint.x, offCurvePoint.y, point.x, point.y);
@@ -80,7 +80,7 @@ class Glyph2Canvas {
 					}
 
 					ctx.beginPath();
-					if (point.onCurve)
+					if (point.c)
 						ctx.fillStyle = '#ff0000';
 					else
 						ctx.fillStyle = '#00ff00';

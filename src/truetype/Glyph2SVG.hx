@@ -32,8 +32,8 @@ class Glyph2SVG {
                     svgPath.push('M ${point.x} ${point.y}');
 				} else {
                     var prevPoint = outline[i - 1];
-					if (point.onCurve) {
-                        if (prevPoint.onCurve) {
+					if (point.c) {  // curve?
+                        if (prevPoint.c) {
                             svgPath.push('L ${point.x} ${point.y}');
 						} else {
                             svgPath.push("Q " + offCurvePoint.x + " " + offCurvePoint.y + " " + point.x + " " + point.y);

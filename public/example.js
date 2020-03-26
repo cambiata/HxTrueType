@@ -12,6 +12,12 @@ Example.__name__ = true;
 Example.main = function() {
 	var bytes = haxe_Resource.getBytes("font");
 	var ttfGlyphs = new truetype_TTFGlyphs(bytes);
+	var map = truetype_GlyphTools.createGlyphMap(10,12,ttfGlyphs);
+	var jsonStr = truetype_GlyphTools.glyphMapToJson(map);
+	console.log("src/Example.hx:26:",jsonStr);
+	var map2 = truetype_GlyphTools.glyphMapFromJson(jsonStr);
+	console.log("src/Example.hx:28:",map2);
+	console.log("src/Example.hx:30:",Std.string(map) == Std.string(map2));
 	var scale = 3;
 	var translateY = -1000;
 	var _g = 9;
@@ -66,10 +72,52 @@ HxOverrides.iter = function(a) {
 	}};
 };
 Math.__name__ = true;
+var Reflect = function() { };
+Reflect.__name__ = true;
+Reflect.fields = function(o) {
+	var a = [];
+	if(o != null) {
+		var hasOwnProperty = Object.prototype.hasOwnProperty;
+		for( var f in o ) {
+		if(f != "__id__" && f != "hx__closures__" && hasOwnProperty.call(o,f)) {
+			a.push(f);
+		}
+		}
+	}
+	return a;
+};
+Reflect.compare = function(a,b) {
+	if(a == b) {
+		return 0;
+	} else if(a > b) {
+		return 1;
+	} else {
+		return -1;
+	}
+};
 var Std = function() { };
 Std.__name__ = true;
 Std.string = function(s) {
 	return js_Boot.__string_rec(s,"");
+};
+Std.parseInt = function(x) {
+	if(x != null) {
+		var _g = 0;
+		var _g1 = x.length;
+		while(_g < _g1) {
+			var i = _g++;
+			var c = x.charCodeAt(i);
+			if(c <= 8 || c >= 14 && c != 32 && c != 45) {
+				var v = parseInt(x, (x[(i + 1)]=="x" || x[(i + 1)]=="X") ? 16 : 10);
+				if(isNaN(v)) {
+					return null;
+				} else {
+					return v;
+				}
+			}
+		}
+	}
+	return null;
 };
 var StringBuf = function() {
 	this.b = "";
@@ -1231,6 +1279,34 @@ haxe_crypto_BaseCode.prototype = {
 		return out;
 	}
 };
+var haxe_ds_IntMap = function() {
+	this.h = { };
+};
+haxe_ds_IntMap.__name__ = true;
+haxe_ds_IntMap.prototype = {
+	keys: function() {
+		var a = [];
+		for( var key in this.h ) (this.h.hasOwnProperty(key) ? a.push(key | 0) : null);
+		return HxOverrides.iter(a);
+	}
+	,toString: function() {
+		var s_b = "";
+		s_b += "{";
+		var it = this.keys();
+		var i = it;
+		while(i.hasNext()) {
+			var i1 = i.next();
+			s_b += i1 == null ? "null" : "" + i1;
+			s_b += " => ";
+			s_b += Std.string(Std.string(this.h[i1]));
+			if(it.hasNext()) {
+				s_b += ", ";
+			}
+		}
+		s_b += "}";
+		return s_b;
+	}
+};
 var haxe_ds_StringMap = function() {
 	this.h = { };
 };
@@ -1890,8 +1966,8 @@ truetype_Glyph2Canvas.getGlyphCanvas = function(ttfGlyphs,index,displayScale,tra
 				ctx.moveTo(point.x,point.y);
 			} else {
 				var prevPoint = outline[i - 1];
-				if(point.onCurve) {
-					if(prevPoint.onCurve) {
+				if(point.c) {
+					if(prevPoint.c) {
 						ctx.lineTo(point.x,point.y);
 					} else {
 						ctx.quadraticCurveTo(offCurvePoint.x,offCurvePoint.y,point.x,point.y);
@@ -1920,7 +1996,7 @@ truetype_Glyph2Canvas.getGlyphCanvas = function(ttfGlyphs,index,displayScale,tra
 					ctx.fill();
 				}
 				ctx.beginPath();
-				if(point1.onCurve) {
+				if(point1.c) {
 					ctx.fillStyle = "#ff0000";
 				} else {
 					ctx.fillStyle = "#00ff00";
@@ -1968,8 +2044,8 @@ truetype_Glyph2SVG.getGlyphSvg = function(ttfGlyphs,index,displayScale,translate
 				svgPath.push("M " + point.x + " " + point.y);
 			} else {
 				var prevPoint = outline[i - 1];
-				if(point.onCurve) {
-					if(prevPoint.onCurve) {
+				if(point.c) {
+					if(prevPoint.c) {
 						svgPath.push("L " + point.x + " " + point.y);
 					} else {
 						svgPath.push("Q " + offCurvePoint.x + " " + offCurvePoint.y + " " + point.x + " " + point.y);
@@ -1991,6 +2067,57 @@ truetype_Glyph2SVG.getGlyphSvg = function(ttfGlyphs,index,displayScale,translate
 	svg.set("height",canvasHeight + "px");
 	svg.addChild(path);
 	return svg;
+};
+var truetype_GlyphTools = function() { };
+truetype_GlyphTools.__name__ = true;
+truetype_GlyphTools.createGlyphMap = function(fromIndex,toIndex,ttfGlyphs) {
+	var map = new haxe_ds_IntMap();
+	var _g = fromIndex;
+	var _g1 = toIndex + 1;
+	while(_g < _g1) {
+		var index = _g++;
+		if(!ttfGlyphs.isGlyphSimple(index)) {
+			console.log("src/truetype/GlyphTools.hx:15:","TTF Problem here: This glyph index (" + index + ") does not seem to be of type GlyphSimple...");
+			continue;
+		}
+		var outlines = ttfGlyphs.getGlyphOutlines(index);
+		map.h[index] = outlines;
+	}
+	return map;
+};
+truetype_GlyphTools.glyphMapToJson = function(map) {
+	var indexes = [];
+	var index = map.keys();
+	while(index.hasNext()) {
+		var index1 = index.next();
+		indexes.push(index1);
+	}
+	indexes.sort(Reflect.compare);
+	var mapObj = { };
+	var _g = 0;
+	while(_g < indexes.length) {
+		var index2 = indexes[_g];
+		++_g;
+		mapObj["" + index2] = map.h[index2];
+	}
+	return JSON.stringify(mapObj);
+};
+truetype_GlyphTools.glyphMapFromJson = function(jsonString) {
+	var mapObj = JSON.parse(jsonString);
+	console.log("src/truetype/GlyphTools.hx:40:",mapObj);
+	var map = new haxe_ds_IntMap();
+	var access = mapObj;
+	var _g_access = access;
+	var _g_keys = Reflect.fields(access);
+	var _g_index = 0;
+	while(_g_index < _g_keys.length) {
+		var key = _g_keys[_g_index++];
+		var _g1 = { value : _g_access[key], key : key};
+		var index = _g1.key;
+		var outlines = _g1.value;
+		map.h[Std.parseInt(index)] = outlines;
+	}
+	return map;
 };
 var truetype_TTFGlyphs = function(ttfBytes) {
 	var bytesInput = new haxe_io_BytesInput(ttfBytes);
@@ -2064,7 +2191,7 @@ truetype_TTFGlyphs.prototype = {
 		while(_g < _g1) {
 			var i = _g++;
 			var onCurve = simple.flags[i] % 2 != 0;
-			var point = { onCurve : onCurve, x : simple.xCoordinates[i], y : simple.yCoordinates[i]};
+			var point = { c : onCurve, x : simple.xCoordinates[i], y : simple.yCoordinates[i]};
 			points.push(point);
 		}
 		var p = 0;
@@ -2097,7 +2224,7 @@ truetype_TTFGlyphs.prototype = {
 			while(_g1 < _g2.length) {
 				var v = _g2[_g1];
 				++_g1;
-				if(v.onCurve == true) {
+				if(v.c == true) {
 					_g.push(v);
 				}
 			}
@@ -2105,7 +2232,7 @@ truetype_TTFGlyphs.prototype = {
 		};
 		var shiftPoints = function(outline1) {
 			var first = outline1[0];
-			while(first.onCurve == false) {
+			while(first.c == false) {
 				outline1.push(outline1.shift());
 				first = outline1[0];
 			}
@@ -2115,7 +2242,7 @@ truetype_TTFGlyphs.prototype = {
 			var p1 = outline2[outline2.length - 1];
 			var newX = (p1.x - p0.x) / 2 + p0.x;
 			var newY = (p1.y - p0.y) / 2 + p0.y;
-			var newPoint = { x : newX, y : newY, onCurve : true};
+			var newPoint = { x : newX, y : newY, c : true};
 			outline2.unshift(newPoint);
 		};
 		var _g3 = 0;
@@ -2141,10 +2268,10 @@ truetype_TTFGlyphs.prototype = {
 				newOutline.push(point);
 				if(i > 0) {
 					var prevPoint = outline4[i - 1];
-					if(point.onCurve == false && prevPoint.onCurve == false) {
+					if(point.c == false && prevPoint.c == false) {
 						var newX1 = (point.x - prevPoint.x) / 2 + prevPoint.x;
 						var newY1 = (point.y - prevPoint.y) / 2 + prevPoint.y;
-						var newPoint1 = { x : newX1, y : newY1, onCurve : true};
+						var newPoint1 = { x : newX1, y : newY1, c : true};
 						newOutline.splice(newOutline.length - 1,0,newPoint1);
 					}
 				}
