@@ -3,14 +3,14 @@ package truetype;
 import format.ttf.Data;
 
 
-typedef GlyphContourPoint = {
+typedef GlyphOutlinePoint = {
 	onCurve:Bool,
 	x:Float,
 	y:Float,
 };
 
-typedef GlyphContour = Array<GlyphContourPoint>;
-typedef GlyphContours = Array<GlyphContour>;
+typedef GlyphOutline = Array<GlyphOutlinePoint>;
+typedef GlyphOutlines = Array<GlyphOutline>;
 
 class TTFGlyphs {
 	public var headdata(default, null):HeadData;
@@ -70,12 +70,12 @@ class TTFGlyphs {
 		}
 	}
 
-	public function getGlyphContours(index:Int):GlyphContours {
+	public function getGlyphOutlines(index:Int):GlyphOutlines {
 		var simple:GlyphSimple = getGlyphSimple(index);
-		var points:GlyphContour = [];
+		var points:GlyphOutline = [];
 		for (i in 0...simple.flags.length) {
 			var onCurve = !(simple.flags[i] % 2 == 0);
-			var point:GlyphContourPoint = {
+			var point:GlyphOutlinePoint = {
 				onCurve: onCurve,
 				x: simple.xCoordinates[i],
 				y: simple.yCoordinates[i],
@@ -88,91 +88,91 @@ class TTFGlyphs {
 		var c = 0;
 		var first = 1;
 
-		var contour:GlyphContour = [];
-		var contours = [];
+		var outline:GlyphOutline = [];
+		var outlines = [];
 		while (p < points.length) {
 			var point = points[p];
 			if (first == 1) {
 				first = 0;
 			} else {}
-			contour.push(point);
+			outline.push(point);
 			if (p == simple.endPtsOfContours[c]) {
 				c += 1;
 				first = 1;
-				contours.push(contour.copy());
-				contour = [];
+				outlines.push(outline.copy());
+				outline = [];
 			}
 			p += 1;
 		}
 
 		// add interpolated points between offCurve points etc.
-		this.adjustContours(contours);
+		this.adjustOutlines(outlines);
 
-		return contours;
+		return outlines;
 	}
 
-	public function adjustContours(contours:GlyphContours) {
+	public function adjustOutlines(outlines:GlyphOutlines) {
 		// Does this shape have an OnCurve point
-		function hasOnCurve(contour:GlyphContour):Bool
-			return contour.filter(i -> i.onCurve == true).length > 0;
+		function hasOnCurve(outline:GlyphOutline):Bool
+			return outline.filter(i -> i.onCurve == true).length > 0;
 
 		// Make first point an OnCurve one
-		function shiftPoints(contour:GlyphContour) {
-			var first = contour[0];
+		function shiftPoints(outline:GlyphOutline) {
+			var first = outline[0];
 			while (first.onCurve == false) {
-				contour.push(contour.shift());
-				first = contour[0];
+				outline.push(outline.shift());
+				first = outline[0];
 			}
 		}
 
 		// Create an OnCurve starting point
-		function addControlPointOnCurve(contour:GlyphContour) {
-			var p0 = contour[0];
-			var p1 = contour[contour.length - 1];
+		function addControlPointOnCurve(outline:GlyphOutline) {
+			var p0 = outline[0];
+			var p1 = outline[outline.length - 1];
 			var newX = ((p1.x - p0.x) / 2) + p0.x;
 			var newY = ((p1.y - p0.y) / 2) + p0.y;
-			var newPoint:GlyphContourPoint = {x: newX, y: newY, onCurve: true};
-			contour.unshift(newPoint);
+			var newPoint:GlyphOutlinePoint = {x: newX, y: newY, onCurve: true};
+			outline.unshift(newPoint);
 		}
 
-		for (contour in contours) {
-			// trace('ADJUST CONTOUR: ');
-			// trace('hasOnCurve:' + hasOnCurve(contour));
-			if (hasOnCurve(contour)) {
+		for (outline in outlines) {
+			// trace('ADJUST Outline: ');
+			// trace('hasOnCurve:' + hasOnCurve(outline));
+			if (hasOnCurve(outline)) {
 				// trace('shift this one...');
-				shiftPoints(contour);
+				shiftPoints(outline);
 			} else {
-				addControlPointOnCurve(contour);
+				addControlPointOnCurve(outline);
 			}
 		}
 
 		// Add OnCurve points between succeeding OffCurve points
-		for (contour in contours) {
-			var newContour:GlyphContour = [];
-			for (i in 0...contour.length) {
+		for (outline in outlines) {
+			var newOutline:GlyphOutline = [];
+			for (i in 0...outline.length) {
 				// trace('check point ' + i);
-				var point = contour[i];
-				newContour.push(point);
+				var point = outline[i];
+				newOutline.push(point);
 
 				if (i > 0) {
-					var prevPoint = contour[i - 1];
+					var prevPoint = outline[i - 1];
 					if (point.onCurve == false && prevPoint.onCurve == false) {
 						// trace('two offcurve in a row ' + i);
 						var newX = ((point.x - prevPoint.x) / 2) + prevPoint.x;
 						var newY = ((point.y - prevPoint.y) / 2) + prevPoint.y;
-						var newPoint:GlyphContourPoint = {x: newX, y: newY, onCurve: true};
+						var newPoint:GlyphOutlinePoint = {x: newX, y: newY, onCurve: true};
 						// trace('point:' + point);
 						// trace('prevPoint:' + prevPoint);
 						// trace('newPoint:' + newPoint);
-						newContour.insert(newContour.length - 1, newPoint);
+						newOutline.insert(newOutline.length - 1, newPoint);
 					}
 				}
 			}
 
 			// Add first point also as the last one
-			newContour.push(newContour[0]);
+			newOutline.push(newOutline[0]);
 
-			contours[contours.indexOf(contour)] = newContour;
+			outlines[outlines.indexOf(outline)] = newOutline;
 		}
 	}
 }

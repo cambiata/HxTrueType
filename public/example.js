@@ -1865,7 +1865,7 @@ truetype_Glyph2Canvas.getGlyphCanvas = function(ttfGlyphs,index,displayScale,tra
 		throw new js__$Boot_HaxeError("Glyph index " + index + " is not of type GlyphSimple");
 	}
 	var glyphHeader = ttfGlyphs.getGlyphHeader(index);
-	var contours = ttfGlyphs.getGlyphContours(index);
+	var outlines = ttfGlyphs.getGlyphOutlines(index);
 	var canvas = window.document.createElement("canvas");
 	var scale = 64 / ttfGlyphs.headdata.unitsPerEm * displayScale;
 	var canvasWidth = (glyphHeader.xMax + 5) * scale;
@@ -1877,19 +1877,19 @@ truetype_Glyph2Canvas.getGlyphCanvas = function(ttfGlyphs,index,displayScale,tra
 	ctx.translate(0,translateY);
 	ctx.beginPath();
 	var _g = 0;
-	while(_g < contours.length) {
-		var contour = contours[_g];
+	while(_g < outlines.length) {
+		var outline = outlines[_g];
 		++_g;
 		var offCurvePoint = null;
 		var _g1 = 0;
-		var _g11 = contour.length;
+		var _g11 = outline.length;
 		while(_g1 < _g11) {
 			var i = _g1++;
-			var point = contour[i];
+			var point = outline[i];
 			if(i == 0) {
 				ctx.moveTo(point.x,point.y);
 			} else {
-				var prevPoint = contour[i - 1];
+				var prevPoint = outline[i - 1];
 				if(point.onCurve) {
 					if(prevPoint.onCurve) {
 						ctx.lineTo(point.x,point.y);
@@ -1897,7 +1897,7 @@ truetype_Glyph2Canvas.getGlyphCanvas = function(ttfGlyphs,index,displayScale,tra
 						ctx.quadraticCurveTo(offCurvePoint.x,offCurvePoint.y,point.x,point.y);
 					}
 				} else {
-					offCurvePoint = contour[i];
+					offCurvePoint = outline[i];
 				}
 			}
 		}
@@ -1906,14 +1906,14 @@ truetype_Glyph2Canvas.getGlyphCanvas = function(ttfGlyphs,index,displayScale,tra
 	ctx.fill();
 	if(drawPoints) {
 		var _g12 = 0;
-		while(_g12 < contours.length) {
-			var contour1 = contours[_g12];
+		while(_g12 < outlines.length) {
+			var outline1 = outlines[_g12];
 			++_g12;
 			var _g13 = 0;
-			while(_g13 < contour1.length) {
-				var point1 = contour1[_g13];
+			while(_g13 < outline1.length) {
+				var point1 = outline1[_g13];
 				++_g13;
-				if(point1 == contour1[0]) {
+				if(point1 == outline1[0]) {
 					ctx.beginPath();
 					ctx.fillStyle = "#0000ff";
 					ctx.rect(point1.x - 20,point1.y - 20,40,40);
@@ -1952,22 +1952,22 @@ truetype_Glyph2SVG.getGlyphSvg = function(ttfGlyphs,index,displayScale,translate
 	var scale = 64 / ttfGlyphs.headdata.unitsPerEm * displayScale;
 	var canvasWidth = (glyphHeader.xMax + 5) * scale;
 	var canvasHeight = (ttfGlyphs.headdata.yMax + 300) * scale;
-	var contours = ttfGlyphs.getGlyphContours(index);
+	var outlines = ttfGlyphs.getGlyphOutlines(index);
 	var svgPath = [];
 	var _g = 0;
-	while(_g < contours.length) {
-		var contour = contours[_g];
+	while(_g < outlines.length) {
+		var outline = outlines[_g];
 		++_g;
 		var offCurvePoint = null;
 		var _g1 = 0;
-		var _g11 = contour.length;
+		var _g11 = outline.length;
 		while(_g1 < _g11) {
 			var i = _g1++;
-			var point = contour[i];
+			var point = outline[i];
 			if(i == 0) {
 				svgPath.push("M " + point.x + " " + point.y);
 			} else {
-				var prevPoint = contour[i - 1];
+				var prevPoint = outline[i - 1];
 				if(point.onCurve) {
 					if(prevPoint.onCurve) {
 						svgPath.push("L " + point.x + " " + point.y);
@@ -1975,22 +1975,22 @@ truetype_Glyph2SVG.getGlyphSvg = function(ttfGlyphs,index,displayScale,translate
 						svgPath.push("Q " + offCurvePoint.x + " " + offCurvePoint.y + " " + point.x + " " + point.y);
 					}
 				} else {
-					offCurvePoint = contour[i];
+					offCurvePoint = outline[i];
 				}
 			}
 		}
 	}
-	var p = Xml.createElement("path");
-	p.set("fill",fillColor);
-	p.set("d",svgPath.join(" "));
+	var path = Xml.createElement("path");
+	path.set("fill",fillColor);
+	path.set("d",svgPath.join(" "));
 	var scale1 = 0.064 * displayScale;
-	p.set("transform","scale(" + scale1 + ", -" + scale1 + ") translate(0, " + translateY + ")");
-	var s = Xml.createElement("svg");
-	s.set("xmlns","http://www.w3.org/2000/svg");
-	s.set("width",canvasWidth + "px");
-	s.set("height",canvasHeight + "px");
-	s.addChild(p);
-	return s;
+	path.set("transform","scale(" + scale1 + ", -" + scale1 + ") translate(0, " + translateY + ")");
+	var svg = Xml.createElement("svg");
+	svg.set("xmlns","http://www.w3.org/2000/svg");
+	svg.set("width",canvasWidth + "px");
+	svg.set("height",canvasHeight + "px");
+	svg.addChild(path);
+	return svg;
 };
 var truetype_TTFGlyphs = function(ttfBytes) {
 	var bytesInput = new haxe_io_BytesInput(ttfBytes);
@@ -2009,7 +2009,7 @@ truetype_TTFGlyphs.prototype = {
 			switch(table._hx_index) {
 			case 0:
 				var descriptions = table.descriptions;
-				console.log("src/truetype/TTFGlyphs.hx:32:","TGlyf descriptions: " + descriptions.length);
+				console.log("src/truetype/TTFGlyphs.hx:31:","TGlyf descriptions: " + descriptions.length);
 				this.descriptions = descriptions;
 				this.length = this.descriptions.length;
 				break;
@@ -2033,7 +2033,7 @@ truetype_TTFGlyphs.prototype = {
 			var h1 = description.header;
 			throw new js__$Boot_HaxeError("TGlyphComposite " + index);
 		case 2:
-			console.log("src/truetype/TTFGlyphs.hx:52:","TGlyphNull " + index);
+			console.log("src/truetype/TTFGlyphs.hx:51:","TGlyphNull " + index);
 			return null;
 		}
 	}
@@ -2052,11 +2052,11 @@ truetype_TTFGlyphs.prototype = {
 			var header1 = description.header;
 			return header1;
 		case 2:
-			console.log("src/truetype/TTFGlyphs.hx:69:","TGlyphNull " + index);
+			console.log("src/truetype/TTFGlyphs.hx:68:","TGlyphNull " + index);
 			return null;
 		}
 	}
-	,getGlyphContours: function(index) {
+	,getGlyphOutlines: function(index) {
 		var simple = this.getGlyphSimple(index);
 		var points = [];
 		var _g = 0;
@@ -2070,30 +2070,30 @@ truetype_TTFGlyphs.prototype = {
 		var p = 0;
 		var c = 0;
 		var first = 1;
-		var contour = [];
-		var contours = [];
+		var outline = [];
+		var outlines = [];
 		while(p < points.length) {
 			var point1 = points[p];
 			if(first == 1) {
 				first = 0;
 			}
-			contour.push(point1);
+			outline.push(point1);
 			if(p == simple.endPtsOfContours[c]) {
 				++c;
 				first = 1;
-				contours.push(contour.slice());
-				contour = [];
+				outlines.push(outline.slice());
+				outline = [];
 			}
 			++p;
 		}
-		this.adjustContours(contours);
-		return contours;
+		this.adjustOutlines(outlines);
+		return outlines;
 	}
-	,adjustContours: function(contours) {
-		var hasOnCurve = function(contour) {
+	,adjustOutlines: function(outlines) {
+		var hasOnCurve = function(outline) {
 			var _g = [];
 			var _g1 = 0;
-			var _g2 = contour;
+			var _g2 = outline;
 			while(_g1 < _g2.length) {
 				var v = _g2[_g1];
 				++_g1;
@@ -2103,54 +2103,54 @@ truetype_TTFGlyphs.prototype = {
 			}
 			return _g.length > 0;
 		};
-		var shiftPoints = function(contour1) {
-			var first = contour1[0];
+		var shiftPoints = function(outline1) {
+			var first = outline1[0];
 			while(first.onCurve == false) {
-				contour1.push(contour1.shift());
-				first = contour1[0];
+				outline1.push(outline1.shift());
+				first = outline1[0];
 			}
 		};
-		var addControlPointOnCurve = function(contour2) {
-			var p0 = contour2[0];
-			var p1 = contour2[contour2.length - 1];
+		var addControlPointOnCurve = function(outline2) {
+			var p0 = outline2[0];
+			var p1 = outline2[outline2.length - 1];
 			var newX = (p1.x - p0.x) / 2 + p0.x;
 			var newY = (p1.y - p0.y) / 2 + p0.y;
 			var newPoint = { x : newX, y : newY, onCurve : true};
-			contour2.unshift(newPoint);
+			outline2.unshift(newPoint);
 		};
 		var _g3 = 0;
-		while(_g3 < contours.length) {
-			var contour3 = contours[_g3];
+		while(_g3 < outlines.length) {
+			var outline3 = outlines[_g3];
 			++_g3;
-			if(hasOnCurve(contour3)) {
-				shiftPoints(contour3);
+			if(hasOnCurve(outline3)) {
+				shiftPoints(outline3);
 			} else {
-				addControlPointOnCurve(contour3);
+				addControlPointOnCurve(outline3);
 			}
 		}
 		var _g11 = 0;
-		while(_g11 < contours.length) {
-			var contour4 = contours[_g11];
+		while(_g11 < outlines.length) {
+			var outline4 = outlines[_g11];
 			++_g11;
-			var newContour = [];
+			var newOutline = [];
 			var _g12 = 0;
-			var _g21 = contour4.length;
+			var _g21 = outline4.length;
 			while(_g12 < _g21) {
 				var i = _g12++;
-				var point = contour4[i];
-				newContour.push(point);
+				var point = outline4[i];
+				newOutline.push(point);
 				if(i > 0) {
-					var prevPoint = contour4[i - 1];
+					var prevPoint = outline4[i - 1];
 					if(point.onCurve == false && prevPoint.onCurve == false) {
 						var newX1 = (point.x - prevPoint.x) / 2 + prevPoint.x;
 						var newY1 = (point.y - prevPoint.y) / 2 + prevPoint.y;
 						var newPoint1 = { x : newX1, y : newY1, onCurve : true};
-						newContour.splice(newContour.length - 1,0,newPoint1);
+						newOutline.splice(newOutline.length - 1,0,newPoint1);
 					}
 				}
 			}
-			newContour.push(newContour[0]);
-			contours[contours.indexOf(contour4)] = newContour;
+			newOutline.push(newOutline[0]);
+			outlines[outlines.indexOf(outline4)] = newOutline;
 		}
 	}
 };

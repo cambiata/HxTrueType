@@ -17,7 +17,7 @@ class Glyph2Canvas {
 			throw 'Glyph index $index is not of type GlyphSimple';
 
 		var glyphHeader:GlyphHeader = ttfGlyphs.getGlyphHeader(index);
-		var contours = ttfGlyphs.getGlyphContours(index);
+		var outlines = ttfGlyphs.getGlyphOutlines(index);
 		var canvas:js.html.CanvasElement = Browser.document.createCanvasElement();
 
         var scale = (64 / ttfGlyphs.headdata.unitsPerEm) * displayScale;
@@ -44,14 +44,14 @@ class Glyph2Canvas {
 		// Draw glyph outline
 		ctx.beginPath();
 
-		for (contour in contours) {
-			var offCurvePoint:GlyphContourPoint = null;
-			for (i in 0...contour.length) {
-				var point = contour[i];
+		for (outline in outlines) {
+			var offCurvePoint:GlyphOutlinePoint = null;
+			for (i in 0...outline.length) {
+				var point = outline[i];
 				if (i == 0) {
 					ctx.moveTo(point.x, point.y);
 				} else {
-					var prevPoint = contour[i - 1];
+					var prevPoint = outline[i - 1];
 					if (point.onCurve) {
 						if (prevPoint.onCurve) {
 							ctx.lineTo(point.x, point.y);
@@ -59,7 +59,7 @@ class Glyph2Canvas {
 							ctx.quadraticCurveTo(offCurvePoint.x, offCurvePoint.y, point.x, point.y);
 						}
 					} else {
-						offCurvePoint = contour[i];
+						offCurvePoint = outline[i];
 					}
 				}
 			}
@@ -72,9 +72,9 @@ class Glyph2Canvas {
 		// ----------------------------------------
 		// Draw points
 		if (drawPoints) {
-			for (contour in contours) {
-				for (point in contour) {
-					if (point == contour[0]) {
+			for (outline in outlines) {
+				for (point in outline) {
+					if (point == outline[0]) {
 						ctx.beginPath();
 						ctx.fillStyle = '#0000ff';
 						ctx.rect(point.x - 20, point.y - 20, 40, 40);

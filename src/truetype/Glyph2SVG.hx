@@ -18,18 +18,18 @@ class Glyph2SVG {
         var scale = (64 / ttfGlyphs.headdata.unitsPerEm) * displayScale;
 		var canvasWidth = (glyphHeader.xMax + 5) * scale;
 		var canvasHeight = (ttfGlyphs.headdata.yMax + 300) * scale;
-		var contours:GlyphContours = ttfGlyphs.getGlyphContours(index);
+		var outlines:GlyphOutlines = ttfGlyphs.getGlyphOutlines(index);
 		//--------------------------------------------------------------------
 		// Draw glyph outline
 		var svgPath = [];
-		for (contour in contours) {
-            var offCurvePoint:GlyphContourPoint = null;
-			for (i in 0...contour.length) {
-                var point = contour[i];
+		for (outline in outlines) {
+            var offCurvePoint:GlyphOutlinePoint = null;
+			for (i in 0...outline.length) {
+                var point = outline[i];
 				if (i == 0) {
                     svgPath.push('M ${point.x} ${point.y}');
 				} else {
-                    var prevPoint = contour[i - 1];
+                    var prevPoint = outline[i - 1];
 					if (point.onCurve) {
                         if (prevPoint.onCurve) {
                             svgPath.push('L ${point.x} ${point.y}');
@@ -37,7 +37,7 @@ class Glyph2SVG {
                             svgPath.push("Q " + offCurvePoint.x + " " + offCurvePoint.y + " " + point.x + " " + point.y);
 						}
 					} else {
-                        offCurvePoint = contour[i];
+                        offCurvePoint = outline[i];
 					}
 				}
 			}
