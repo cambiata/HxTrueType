@@ -2009,7 +2009,7 @@ truetype_TTFGlyphs.prototype = {
 			switch(table._hx_index) {
 			case 0:
 				var descriptions = table.descriptions;
-				console.log("src/truetype/TTFGlyphs.hx:31:","TGlyf descriptions: " + descriptions.length);
+				console.log("src/truetype/TTFGlyphs.hx:22:","TGlyf descriptions: " + descriptions.length);
 				this.descriptions = descriptions;
 				this.length = this.descriptions.length;
 				break;
@@ -2033,7 +2033,7 @@ truetype_TTFGlyphs.prototype = {
 			var h1 = description.header;
 			throw new js__$Boot_HaxeError("TGlyphComposite " + index);
 		case 2:
-			console.log("src/truetype/TTFGlyphs.hx:51:","TGlyphNull " + index);
+			console.log("src/truetype/TTFGlyphs.hx:42:","TGlyphNull " + index);
 			return null;
 		}
 	}
@@ -2052,7 +2052,7 @@ truetype_TTFGlyphs.prototype = {
 			var header1 = description.header;
 			return header1;
 		case 2:
-			console.log("src/truetype/TTFGlyphs.hx:68:","TGlyphNull " + index);
+			console.log("src/truetype/TTFGlyphs.hx:59:","TGlyphNull " + index);
 			return null;
 		}
 	}

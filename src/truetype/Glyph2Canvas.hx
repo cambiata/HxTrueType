@@ -1,10 +1,8 @@
 package truetype;
 
-import js.html.svg.SVGElement;
 import js.Browser;
-import js.Browser.document;
 import js.html.CanvasElement;
-import haxe.io.BytesInput;
+import truetype.GlyphOutline;
 import truetype.TTFGlyphs;
 import format.ttf.Data;
 

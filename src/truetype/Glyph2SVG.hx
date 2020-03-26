@@ -2,7 +2,9 @@ package truetype;
 
 import haxe.io.BytesInput;
 import truetype.TTFGlyphs;
+import truetype.GlyphOutline;
 import format.ttf.Data;
+
 
 class Glyph2SVG {
 
