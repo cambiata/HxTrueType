@@ -7,7 +7,7 @@ import truetype.TTFGlyphs;
 import format.ttf.Data;
 
 class Glyph2Canvas {
-	static public function getGlyphCanvas(ttfGlyphs:TTFGlyphs, index:Int, displayScale:Float = .5, translateY:Float=-1350, fillColor:String = "#00a", drawPoints:Bool = false):CanvasElement {
+	static public function getGlyphCanvas(ttfGlyphs:TTFGlyphs, index:Int, displayScale:Float = .5, translateY:Float=-1350, fillColor:String = "#00a", drawPoints:Bool = false, drawStroke:Bool=true):CanvasElement {
 		// Only works with GlyphSimple right now...
 		// Seems to cover most cases
 		var glyph:GlyphSimple = ttfGlyphs.getGlyphSimple(index);
@@ -65,10 +65,12 @@ class Glyph2Canvas {
 				}
 			}
 		}
-		ctx.fillStyle = '#00a';
+		ctx.fillStyle = fillColor;
 		ctx.fill();
-		// ctx.lineWidth = 3;
-		// ctx.stroke();
+		if (drawStroke) {
+			ctx.lineWidth = displayScale;
+			ctx.stroke();
+		}
 
 		// ----------------------------------------
 		// Draw points

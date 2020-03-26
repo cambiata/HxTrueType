@@ -5,8 +5,8 @@ import truetype.TTFGlyphs;
 import truetype.GlyphOutline;
 import format.ttf.Data;
 
-class Glyph2SVG {
-	static public function getGlyphSvg(ttfGlyphs:TTFGlyphs, index:Int, displayScale:Float = .5, translateY:Float = -1350, fillColor:String = "#a00"):Xml {
+class Glyph2SVG {    
+	static public function getGlyphSvg(ttfGlyphs:TTFGlyphs, index:Int, displayScale:Float = .5, translateY:Float = -1350, fillColor:String = "#4a4ad1"):Xml {
 		// Only works with GlyphSimple right now...
 		// Seems to cover all cases..!?
 

@@ -24,7 +24,7 @@ Example.main = function() {
 			console.log("src/Example.hx:24:","Glyph index " + index + " does not seem to be defined");
 			continue;
 		}
-		var canvas = truetype_Glyph2Canvas.getGlyphCanvas(ttfGlyphs,index,scale,translateY,null,false);
+		var canvas = truetype_Glyph2Canvas.getGlyphCanvas(ttfGlyphs,index,scale,translateY,"#eee",true);
 		window.document.body.appendChild(canvas);
 		var svg = truetype_Glyph2SVG.getGlyphSvg(ttfGlyphs,index,scale,translateY);
 		var div = window.document.createElement("div");
@@ -1904,7 +1904,10 @@ js_Boot.__string_rec = function(o,s) {
 };
 var truetype_Glyph2Canvas = function() { };
 truetype_Glyph2Canvas.__name__ = true;
-truetype_Glyph2Canvas.getGlyphCanvas = function(ttfGlyphs,index,displayScale,translateY,fillColor,drawPoints) {
+truetype_Glyph2Canvas.getGlyphCanvas = function(ttfGlyphs,index,displayScale,translateY,fillColor,drawPoints,drawStroke) {
+	if(drawStroke == null) {
+		drawStroke = true;
+	}
 	if(drawPoints == null) {
 		drawPoints = false;
 	}
@@ -1961,8 +1964,12 @@ truetype_Glyph2Canvas.getGlyphCanvas = function(ttfGlyphs,index,displayScale,tra
 			}
 		}
 	}
-	ctx.fillStyle = "#00a";
+	ctx.fillStyle = fillColor;
 	ctx.fill();
+	if(drawStroke) {
+		ctx.lineWidth = displayScale;
+		ctx.stroke();
+	}
 	if(drawPoints) {
 		var _g12 = 0;
 		while(_g12 < outlines.length) {
@@ -1995,7 +2002,7 @@ var truetype_Glyph2SVG = function() { };
 truetype_Glyph2SVG.__name__ = true;
 truetype_Glyph2SVG.getGlyphSvg = function(ttfGlyphs,index,displayScale,translateY,fillColor) {
 	if(fillColor == null) {
-		fillColor = "#a00";
+		fillColor = "#4a4ad1";
 	}
 	if(translateY == null) {
 		translateY = -1350;

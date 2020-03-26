@@ -24,7 +24,7 @@ class Example {
 				trace('Glyph index $index does not seem to be defined');
 				continue;						
 			}
-			var canvas:js.html.CanvasElement = truetype.Glyph2Canvas.getGlyphCanvas(ttfGlyphs, index, scale, translateY, false);
+			var canvas:js.html.CanvasElement = truetype.Glyph2Canvas.getGlyphCanvas(ttfGlyphs, index, scale, translateY, '#eee', true);
             js.Browser.document.body.appendChild(canvas);
 			
 			var svg:Xml = truetype.Glyph2SVG.getGlyphSvg(ttfGlyphs, index, scale, translateY);
