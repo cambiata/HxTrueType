@@ -41,6 +41,7 @@ class Reader {
 		// var postData = readPostTable(tablesHash.get("post"));
 		var os2Data = ( tablesHash.get( "OS_2" ): OS2Data_ );
 		var nameData = readNameTable(tablesHash.get("_name"));
+		
 		var tables = [
 				THhea( hheaData ),
 				THead( headData ),
@@ -636,7 +637,7 @@ class Reader {
 				nameID: input.readUInt16(),
 				length: input.readUInt16(),
 				offset: input.readUInt16(),
-				record: ""
+				record: "",
 			});
 		}
 		nameRecords.sort(sortOnOffset16);
@@ -654,7 +655,9 @@ class Reader {
 			for (i in 0...Std.int(fontNameRecord.length / 2))
 				fontNameRecord.record += String.fromCharCode(input.readUInt16());
 		}
-		fontName = fontNameRecord.record;
+		// fontName = fontNameRecord.record;
+		this.fontName = fontNameRecord.record;
+		
 		/*
 			//offsets don't always match with length and there is overlapping. for now we only search the font name (above).
 			var lastOffset = -1;

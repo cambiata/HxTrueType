@@ -1,7 +1,7 @@
 package truetype;
 
 typedef GlyphOutlinePoint = {
-	@:optional var c:Bool; // curve
+	var c:Bool; // curve
 	var x:Float;
 	var y:Float;
 };

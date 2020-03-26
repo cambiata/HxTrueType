@@ -7,9 +7,9 @@ import truetype.TTFGlyphs;
 using Std;
 
 class GlyphTools {
-	static public function createGlyphMap(fromIndex:Int, toIndex:Int, ttfGlyphs:TTFGlyphs):GlyphMap {
+	static public function createGlyphMap(indexes:Array<Int>, ttfGlyphs:TTFGlyphs):GlyphMap {
 		var map = new GlyphMap();
-		for (index in fromIndex...toIndex + 1) {
+		for (index in indexes) {
 			if (!ttfGlyphs.isGlyphSimple(index)) {
 				trace('TTF Problem here: This glyph index ($index) does not seem to be of type GlyphSimple...');
 				continue;

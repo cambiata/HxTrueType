@@ -25,8 +25,11 @@ class Glyph2Canvas {
         canvas.setAttribute('height', '${canvasHeight}px');
 		canvas.setAttribute('width', '${canvasWidth}px');
 		var ctx:js.html.CanvasRenderingContext2D = canvas.getContext2d();
+		ctx.font = "16px Arial";
+		ctx.fillText('$index', 8, 20);
 		ctx.scale(scale, -scale);
 		ctx.translate(0, translateY);
+
 
 		// --------------------------------------------------------------------
 		// Draw bounding box

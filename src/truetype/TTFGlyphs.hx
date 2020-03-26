@@ -7,12 +7,14 @@ class TTFGlyphs {
 	public var headdata(default, null):HeadData;
 	public var length(default, null):Int;
 	var descriptions:Array<GlyfDescription>;
+	public var fontName(default, null):String;
 
 	public function new(ttfBytes:haxe.io.Bytes) {
 		var bytesInput = new haxe.io.BytesInput(ttfBytes);
 		var ttfReader:format.ttf.Reader = new format.ttf.Reader(bytesInput);
 		var ttf:TTF = ttfReader.read();
-		this.buildTables(ttf);
+		this.fontName = ttfReader.fontName;
+		this.buildTables(ttf);		
 	}
 
 	function buildTables(ttf:TTF) {
@@ -29,16 +31,21 @@ class TTFGlyphs {
 	}
 
 	public function getGlyphSimple(index:Int):GlyphSimple {
+		if (this.descriptions[index] == null) {
+			trace('Can not get description for glyph index $index');
+			return null;
+		}
 		var description:GlyfDescription = this.descriptions[index];
 		return switch description {
 			case TGlyphSimple(h, data):
 				data;
 			case TGlyphComposite(h, components):
 				// Still haven't found any Composite glyphs...
-				throw 'TGlyphComposite $index';
+				// trace('TGlyphNull $index');
+				// throw 'TGlyphComposite $index';
 				null;
 			case TGlyphNull:
-				trace('TGlyphNull $index');
+				// trace('TGlyphNull $index');
 				null;
 		}
 	}
@@ -65,13 +72,11 @@ class TTFGlyphs {
 		var points:GlyphOutline = [];
 		for (i in 0...simple.flags.length) {
 			var onCurve = !(simple.flags[i] % 2 == 0);
-			
 			var point:GlyphOutlinePoint = {
-				// c: onCurve,
+				c: onCurve,
 				x: simple.xCoordinates[i],
 				y: simple.yCoordinates[i],
 			};
-			if (onCurve) point.c = true;
 			points.push(point);
 		}
 
