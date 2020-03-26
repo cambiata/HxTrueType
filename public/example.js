@@ -1972,7 +1972,7 @@ truetype_Glyph2SVG.getGlyphSvg = function(ttfGlyphs,index,displayScale,translate
 					if(prevPoint.onCurve) {
 						svgPath.push("L " + point.x + " " + point.y);
 					} else {
-						svgPath.push("Q " + offCurvePoint.x + ", " + offCurvePoint.y + ", " + point.x + ", " + point.y);
+						svgPath.push("Q " + offCurvePoint.x + " " + offCurvePoint.y + " " + point.x + " " + point.y);
 					}
 				} else {
 					offCurvePoint = contour[i];

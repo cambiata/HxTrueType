@@ -34,7 +34,7 @@ class Glyph2SVG {
                         if (prevPoint.onCurve) {
                             svgPath.push('L ${point.x} ${point.y}');
 						} else {
-                            svgPath.push("Q " + offCurvePoint.x + ", " + offCurvePoint.y + ", " + point.x + ", " + point.y);
+                            svgPath.push("Q " + offCurvePoint.x + " " + offCurvePoint.y + " " + point.x + " " + point.y);
 						}
 					} else {
                         offCurvePoint = contour[i];
@@ -45,20 +45,20 @@ class Glyph2SVG {
         
         //--------------------------------------------------------------------
         // Build SVG element
-        var p = Xml.createElement('path');
-        p.set('fill', fillColor);
-        p.set('d', svgPath.join(' '));
+        var path = Xml.createElement('path');
+        path.set('fill', fillColor);
+        path.set('d', svgPath.join(' '));
 
         var scale = 0.064 * displayScale;
-        p.set('transform', 'scale($scale, -$scale) translate(0, $translateY)');
+        path.set('transform', 'scale($scale, -$scale) translate(0, $translateY)');
 
-        var s = Xml.createElement('svg');
-        s.set('xmlns', 'http://www.w3.org/2000/svg');
-        s.set('width', canvasWidth + "px");
-        s.set('height', canvasHeight + "px");
+        var svg = Xml.createElement('svg');
+        svg.set('xmlns', 'http://www.w3.org/2000/svg');
+        svg.set('width', canvasWidth + "px");
+        svg.set('height', canvasHeight + "px");
 
-        s.addChild(p);
+        svg.addChild(path);
 		
-        return s;
+        return svg;
     }   
 }

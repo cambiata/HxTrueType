@@ -12,7 +12,6 @@ typedef GlyphContourPoint = {
 typedef GlyphContour = Array<GlyphContourPoint>;
 typedef GlyphContours = Array<GlyphContour>;
 
-
 class TTFGlyphs {
 	public var headdata(default, null):HeadData;
 	public var length(default, null):Int;
