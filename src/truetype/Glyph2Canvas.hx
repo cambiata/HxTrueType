@@ -7,20 +7,17 @@ import truetype.TTFGlyphs;
 import format.ttf.Data;
 
 class Glyph2Canvas {
-	static public function getGlyphCanvas(ttfGlyphs:TTFGlyphs, index:Int, displayScale:Float = .5, translateY:Float=-1350, fillColor:String = "#00a", drawPoints:Bool = false, drawStroke:Bool=true):CanvasElement {
-		// Only works with GlyphSimple right now...
-		// Seems to cover most cases
-		var glyph:GlyphSimple = ttfGlyphs.getGlyphSimple(index);
-		if (glyph == null)
-			throw 'Glyph index $index is not of type GlyphSimple';
 
-		var glyphHeader:GlyphHeader = ttfGlyphs.getGlyphHeader(index);
-		var outlines = ttfGlyphs.getGlyphOutlines(index);
+	// Add some extra space to the rendered area
+	static var ADD_TO_GLYPH_WIDTH = 5;
+	static var ADD_TO_GLYPH_HEIGHT = 100;
+
+	static public function getGlyphCanvas(glyphInfo:GlyphInfo, displayScale:Float = .5, translateY:Float=-1000, fillColor:String = "#00a", drawPoints:Bool = false, drawStroke:Bool=true):CanvasElement {
 		var canvas:js.html.CanvasElement = Browser.document.createCanvasElement();
-
-        var scale = (64 / ttfGlyphs.headdata.unitsPerEm) * displayScale;
-		var canvasWidth = (glyphHeader.xMax + 5) * scale;
-		var canvasHeight = (ttfGlyphs.headdata.yMax + 300) * scale;
+		var index = glyphInfo.index;
+        var scale = (64 / glyphInfo.unitsPerEm) * displayScale;
+		var canvasWidth = glyphInfo.xMax * scale + ADD_TO_GLYPH_WIDTH;
+		var canvasHeight = glyphInfo.yMax * scale + ADD_TO_GLYPH_HEIGHT;
 
         canvas.setAttribute('height', '${canvasHeight}px');
 		canvas.setAttribute('width', '${canvasWidth}px');
@@ -45,7 +42,7 @@ class Glyph2Canvas {
 		// Draw glyph outline
 		ctx.beginPath();
 
-		for (outline in outlines) {
+		for (outline in glyphInfo.outlines) {
 			var offCurvePoint:GlyphOutlinePoint = null;
 			for (i in 0...outline.length) {
 				var point = outline[i];
@@ -75,7 +72,7 @@ class Glyph2Canvas {
 		// ----------------------------------------
 		// Draw points
 		if (drawPoints) {
-			for (outline in outlines) {
+			for (outline in glyphInfo.outlines) {
 				for (point in outline) {
 					if (point == outline[0]) {
 						ctx.beginPath();

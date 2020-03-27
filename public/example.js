@@ -24,9 +24,10 @@ Example.main = function() {
 			console.log("src/Example.hx:24:","Glyph index " + index + " does not seem to be defined");
 			continue;
 		}
-		var canvas = truetype_Glyph2Canvas.getGlyphCanvas(ttfGlyphs,index,scale,translateY,"#eee",true);
+		var glyphInfo = ttfGlyphs.getGlyphInfo(index);
+		var canvas = truetype_Glyph2Canvas.getGlyphCanvas(glyphInfo,scale,translateY,"#eee",true);
 		window.document.body.appendChild(canvas);
-		var svg = truetype_Glyph2SVG.getGlyphSvg(ttfGlyphs,index,scale,translateY);
+		var svg = truetype_Glyph2SVG.getGlyphSvg(glyphInfo,scale,translateY);
 		var div = window.document.createElement("div");
 		div.innerHTML = haxe_xml_Printer.print(svg);
 		var svgElement = div.firstChild;
@@ -525,8 +526,8 @@ format_ttf_Reader.prototype = {
 		}
 		var i = new haxe_io_BytesInput(bytes);
 		i.set_bigEndian(true);
-		var this11 = { version : i.readInt32(), ascender : i.readInt16(), descender : i.readInt16(), lineGap : i.readInt16(), advanceWidthMax : i.readUInt16(), minLeftSideBearing : i.readInt16(), minRightSideBearing : i.readInt16(), xMaxExtent : i.readInt16(), caretSlopeRise : i.readInt16(), caretSlopeRun : i.readInt16(), caretOffset : i.readInt16(), reserved : i.read(8), metricDataFormat : i.readInt16(), numberOfHMetrics : i.readUInt16()};
-		var hheaData = this11;
+		var this2 = { version : i.readInt32(), ascender : i.readInt16(), descender : i.readInt16(), lineGap : i.readInt16(), advanceWidthMax : i.readUInt16(), minLeftSideBearing : i.readInt16(), minRightSideBearing : i.readInt16(), xMaxExtent : i.readInt16(), caretSlopeRise : i.readInt16(), caretSlopeRun : i.readInt16(), caretOffset : i.readInt16(), reserved : i.read(8), metricDataFormat : i.readInt16(), numberOfHMetrics : i.readUInt16()};
+		var hheaData = this2;
 		var _this1 = this.tablesHash;
 		var bytes1 = __map_reserved["head"] != null ? _this1.getReserved("head") : _this1.h["head"];
 		if(bytes1 == null) {
@@ -534,8 +535,8 @@ format_ttf_Reader.prototype = {
 		}
 		var i1 = new haxe_io_BytesInput(bytes1);
 		i1.set_bigEndian(true);
-		var this12 = { version : i1.readInt32(), fontRevision : i1.readInt32(), checkSumAdjustment : i1.readInt32(), magicNumber : i1.readInt32(), flags : i1.readUInt16(), unitsPerEm : i1.readUInt16(), created : i1.readDouble(), modified : i1.readDouble(), xMin : i1.readInt16(), yMin : i1.readInt16(), xMax : i1.readInt16(), yMax : i1.readInt16(), macStyle : i1.readUInt16(), lowestRecPPEM : i1.readUInt16(), fontDirectionHint : i1.readInt16(), indexToLocFormat : i1.readInt16(), glyphDataFormat : i1.readInt16()};
-		var headData = this12;
+		var this3 = { version : i1.readInt32(), fontRevision : i1.readInt32(), checkSumAdjustment : i1.readInt32(), magicNumber : i1.readInt32(), flags : i1.readUInt16(), unitsPerEm : i1.readUInt16(), created : i1.readDouble(), modified : i1.readDouble(), xMin : i1.readInt16(), yMin : i1.readInt16(), xMax : i1.readInt16(), yMax : i1.readInt16(), macStyle : i1.readUInt16(), lowestRecPPEM : i1.readUInt16(), fontDirectionHint : i1.readInt16(), indexToLocFormat : i1.readInt16(), glyphDataFormat : i1.readInt16()};
+		var headData = this3;
 		var _this2 = this.tablesHash;
 		var bytes2 = __map_reserved["maxp"] != null ? _this2.getReserved("maxp") : _this2.h["maxp"];
 		if(bytes2 == null) {
@@ -543,8 +544,8 @@ format_ttf_Reader.prototype = {
 		}
 		var i2 = new haxe_io_BytesInput(bytes2);
 		i2.set_bigEndian(true);
-		var this13 = { versionNumber : i2.readInt32(), numGlyphs : i2.readUInt16(), maxPoints : i2.readUInt16(), maxContours : i2.readUInt16(), maxComponentPoints : i2.readUInt16(), maxComponentContours : i2.readUInt16(), maxZones : i2.readUInt16(), maxTwilightPoints : i2.readUInt16(), maxStorage : i2.readUInt16(), maxFunctionDefs : i2.readUInt16(), maxInstructionDefs : i2.readUInt16(), maxStackElements : i2.readUInt16(), maxSizeOfInstructions : i2.readUInt16(), maxComponentElements : i2.readUInt16(), maxComponentDepth : i2.readUInt16()};
-		var maxpData = this13;
+		var this4 = { versionNumber : i2.readInt32(), numGlyphs : i2.readUInt16(), maxPoints : i2.readUInt16(), maxContours : i2.readUInt16(), maxComponentPoints : i2.readUInt16(), maxComponentContours : i2.readUInt16(), maxZones : i2.readUInt16(), maxTwilightPoints : i2.readUInt16(), maxStorage : i2.readUInt16(), maxFunctionDefs : i2.readUInt16(), maxInstructionDefs : i2.readUInt16(), maxStackElements : i2.readUInt16(), maxSizeOfInstructions : i2.readUInt16(), maxComponentElements : i2.readUInt16(), maxComponentDepth : i2.readUInt16()};
+		var maxpData = this4;
 		var _this3 = this.tablesHash;
 		var locaData = this.readLocaTable(__map_reserved["loca"] != null ? _this3.getReserved("loca") : _this3.h["loca"],headData,maxpData);
 		var _this4 = this.tablesHash;
@@ -562,8 +563,8 @@ format_ttf_Reader.prototype = {
 		}
 		var i3 = new haxe_io_BytesInput(bytes3);
 		i3.set_bigEndian(true);
-		var this14 = { version : i3.readUInt16(), xAvgCharWidth : i3.readInt16(), usWeightClass : i3.readUInt16(), usWidthClass : i3.readUInt16(), fsType : i3.readInt16(), ySubscriptXSize : i3.readInt16(), ySubscriptYSize : i3.readInt16(), ySubscriptXOffset : i3.readInt16(), ySubscriptYOffset : i3.readInt16(), ySuperscriptXSize : i3.readInt16(), ySuperscriptYSize : i3.readInt16(), ySuperscriptXOffset : i3.readInt16(), ySuperscriptYOffset : i3.readInt16(), yStrikeoutSize : i3.readInt16(), yStrikeoutPosition : i3.readInt16(), sFamilyClass : i3.readInt16(), bFamilyType : i3.readByte(), bSerifStyle : i3.readByte(), bWeight : i3.readByte(), bProportion : i3.readByte(), bContrast : i3.readByte(), bStrokeVariation : i3.readByte(), bArmStyle : i3.readByte(), bLetterform : i3.readByte(), bMidline : i3.readByte(), bXHeight : i3.readByte(), ulUnicodeRange1 : i3.readInt32(), ulUnicodeRange2 : i3.readInt32(), ulUnicodeRange3 : i3.readInt32(), ulUnicodeRange4 : i3.readInt32(), achVendorID : i3.readInt32(), fsSelection : i3.readInt16(), usFirstCharIndex : i3.readUInt16(), usLastCharIndex : i3.readUInt16(), sTypoAscender : i3.readInt16(), sTypoDescender : i3.readInt16(), sTypoLineGap : i3.readInt16(), usWinAscent : i3.readUInt16(), usWinDescent : i3.readUInt16()};
-		var os2Data = this14;
+		var this5 = { version : i3.readUInt16(), xAvgCharWidth : i3.readInt16(), usWeightClass : i3.readUInt16(), usWidthClass : i3.readUInt16(), fsType : i3.readInt16(), ySubscriptXSize : i3.readInt16(), ySubscriptYSize : i3.readInt16(), ySubscriptXOffset : i3.readInt16(), ySubscriptYOffset : i3.readInt16(), ySuperscriptXSize : i3.readInt16(), ySuperscriptYSize : i3.readInt16(), ySuperscriptXOffset : i3.readInt16(), ySuperscriptYOffset : i3.readInt16(), yStrikeoutSize : i3.readInt16(), yStrikeoutPosition : i3.readInt16(), sFamilyClass : i3.readInt16(), bFamilyType : i3.readByte(), bSerifStyle : i3.readByte(), bWeight : i3.readByte(), bProportion : i3.readByte(), bContrast : i3.readByte(), bStrokeVariation : i3.readByte(), bArmStyle : i3.readByte(), bLetterform : i3.readByte(), bMidline : i3.readByte(), bXHeight : i3.readByte(), ulUnicodeRange1 : i3.readInt32(), ulUnicodeRange2 : i3.readInt32(), ulUnicodeRange3 : i3.readInt32(), ulUnicodeRange4 : i3.readInt32(), achVendorID : i3.readInt32(), fsSelection : i3.readInt16(), usFirstCharIndex : i3.readUInt16(), usLastCharIndex : i3.readUInt16(), sTypoAscender : i3.readInt16(), sTypoDescender : i3.readInt16(), sTypoLineGap : i3.readInt16(), usWinAscent : i3.readUInt16(), usWinDescent : i3.readUInt16()};
+		var os2Data = this5;
 		var _this9 = this.tablesHash;
 		var nameData = this.readNameTable(__map_reserved["_name"] != null ? _this9.getReserved("_name") : _this9.h["_name"]);
 		var tables = [format_ttf_Table.THhea(hheaData),format_ttf_Table.THead(headData),format_ttf_Table.TMaxp(maxpData),format_ttf_Table.TLoca(locaData),format_ttf_Table.THmtx(hmtxData),format_ttf_Table.TCmap(cmapData),format_ttf_Table.TGlyf(glyfData),format_ttf_Table.TKern(kernData),format_ttf_Table.TOS2(os2Data),format_ttf_Table.TName(nameData)];
@@ -1904,7 +1905,7 @@ js_Boot.__string_rec = function(o,s) {
 };
 var truetype_Glyph2Canvas = function() { };
 truetype_Glyph2Canvas.__name__ = true;
-truetype_Glyph2Canvas.getGlyphCanvas = function(ttfGlyphs,index,displayScale,translateY,fillColor,drawPoints,drawStroke) {
+truetype_Glyph2Canvas.getGlyphCanvas = function(glyphInfo,displayScale,translateY,fillColor,drawPoints,drawStroke) {
 	if(drawStroke == null) {
 		drawStroke = true;
 	}
@@ -1915,21 +1916,16 @@ truetype_Glyph2Canvas.getGlyphCanvas = function(ttfGlyphs,index,displayScale,tra
 		fillColor = "#00a";
 	}
 	if(translateY == null) {
-		translateY = -1350;
+		translateY = -1000;
 	}
 	if(displayScale == null) {
 		displayScale = .5;
 	}
-	var glyph = ttfGlyphs.getGlyphSimple(index);
-	if(glyph == null) {
-		throw new js__$Boot_HaxeError("Glyph index " + index + " is not of type GlyphSimple");
-	}
-	var glyphHeader = ttfGlyphs.getGlyphHeader(index);
-	var outlines = ttfGlyphs.getGlyphOutlines(index);
 	var canvas = window.document.createElement("canvas");
-	var scale = 64 / ttfGlyphs.headdata.unitsPerEm * displayScale;
-	var canvasWidth = (glyphHeader.xMax + 5) * scale;
-	var canvasHeight = (ttfGlyphs.headdata.yMax + 300) * scale;
+	var index = glyphInfo.index;
+	var scale = 64 / glyphInfo.unitsPerEm * displayScale;
+	var canvasWidth = glyphInfo.xMax * scale + truetype_Glyph2Canvas.ADD_TO_GLYPH_WIDTH;
+	var canvasHeight = glyphInfo.yMax * scale + truetype_Glyph2Canvas.ADD_TO_GLYPH_HEIGHT;
 	canvas.setAttribute("height","" + canvasHeight + "px");
 	canvas.setAttribute("width","" + canvasWidth + "px");
 	var ctx = canvas.getContext("2d",null);
@@ -1939,14 +1935,15 @@ truetype_Glyph2Canvas.getGlyphCanvas = function(ttfGlyphs,index,displayScale,tra
 	ctx.translate(0,translateY);
 	ctx.beginPath();
 	var _g = 0;
-	while(_g < outlines.length) {
-		var outline = outlines[_g];
+	var _g1 = glyphInfo.outlines;
+	while(_g < _g1.length) {
+		var outline = _g1[_g];
 		++_g;
 		var offCurvePoint = null;
-		var _g1 = 0;
+		var _g2 = 0;
 		var _g11 = outline.length;
-		while(_g1 < _g11) {
-			var i = _g1++;
+		while(_g2 < _g11) {
+			var i = _g2++;
 			var point = outline[i];
 			if(i == 0) {
 				ctx.moveTo(point.x,point.y);
@@ -1971,14 +1968,15 @@ truetype_Glyph2Canvas.getGlyphCanvas = function(ttfGlyphs,index,displayScale,tra
 		ctx.stroke();
 	}
 	if(drawPoints) {
-		var _g12 = 0;
-		while(_g12 < outlines.length) {
-			var outline1 = outlines[_g12];
-			++_g12;
-			var _g13 = 0;
-			while(_g13 < outline1.length) {
-				var point1 = outline1[_g13];
-				++_g13;
+		var _g21 = 0;
+		var _g3 = glyphInfo.outlines;
+		while(_g21 < _g3.length) {
+			var outline1 = _g3[_g21];
+			++_g21;
+			var _g22 = 0;
+			while(_g22 < outline1.length) {
+				var point1 = outline1[_g22];
+				++_g22;
 				if(point1 == outline1[0]) {
 					ctx.beginPath();
 					ctx.fillStyle = "#0000ff";
@@ -2000,35 +1998,30 @@ truetype_Glyph2Canvas.getGlyphCanvas = function(ttfGlyphs,index,displayScale,tra
 };
 var truetype_Glyph2SVG = function() { };
 truetype_Glyph2SVG.__name__ = true;
-truetype_Glyph2SVG.getGlyphSvg = function(ttfGlyphs,index,displayScale,translateY,fillColor) {
+truetype_Glyph2SVG.getGlyphSvg = function(glyphInfo,displayScale,translateY,fillColor) {
 	if(fillColor == null) {
 		fillColor = "#4a4ad1";
 	}
 	if(translateY == null) {
-		translateY = -1350;
+		translateY = -1000;
 	}
 	if(displayScale == null) {
 		displayScale = .5;
 	}
-	var glyph = ttfGlyphs.getGlyphSimple(index);
-	if(glyph == null) {
-		throw new js__$Boot_HaxeError("Glyph index " + index + " is not of type GlyphSimple");
-	}
-	var glyphHeader = ttfGlyphs.getGlyphHeader(index);
-	var scale = 64 / ttfGlyphs.headdata.unitsPerEm * displayScale;
-	var canvasWidth = (glyphHeader.xMax + 5) * scale;
-	var canvasHeight = (ttfGlyphs.headdata.yMax + 300) * scale;
-	var outlines = ttfGlyphs.getGlyphOutlines(index);
+	var scale = 64 / glyphInfo.unitsPerEm * displayScale;
+	var svgWidth = glyphInfo.xMax * scale + truetype_Glyph2SVG.ADD_TO_GLYPH_WIDTH;
+	var svgHeight = glyphInfo.yMax * scale + truetype_Glyph2SVG.ADD_TO_GLYPH_HEIGHT;
 	var svgPath = [];
 	var _g = 0;
-	while(_g < outlines.length) {
-		var outline = outlines[_g];
+	var _g1 = glyphInfo.outlines;
+	while(_g < _g1.length) {
+		var outline = _g1[_g];
 		++_g;
 		var offCurvePoint = null;
-		var _g1 = 0;
+		var _g2 = 0;
 		var _g11 = outline.length;
-		while(_g1 < _g11) {
-			var i = _g1++;
+		while(_g2 < _g11) {
+			var i = _g2++;
 			var point = outline[i];
 			if(i == 0) {
 				svgPath.push("M " + point.x + " " + point.y);
@@ -2054,8 +2047,8 @@ truetype_Glyph2SVG.getGlyphSvg = function(ttfGlyphs,index,displayScale,translate
 	path.set("transform","scale(" + scale1 + ", -" + scale1 + ") translate(0, " + translateY + ")");
 	var svg = Xml.createElement("svg");
 	svg.set("xmlns","http://www.w3.org/2000/svg");
-	svg.set("width",canvasWidth + "px");
-	svg.set("height",canvasHeight + "px");
+	svg.set("width",svgWidth + "px");
+	svg.set("height",svgHeight + "px");
 	svg.addChild(path);
 	return svg;
 };
@@ -2138,9 +2131,14 @@ truetype_TTFGlyphs.prototype = {
 			}
 		}
 	}
+	,getGlyphInfo: function(index) {
+		var glyphHeader = this.getGlyphHeader(index);
+		var glyphInfo = { index : index, outlines : this.getGlyphOutlines(index), xMax : glyphHeader.xMax, yMax : this.headdata.yMax, unitsPerEm : this.headdata.unitsPerEm};
+		return glyphInfo;
+	}
 	,getGlyphSimple: function(index) {
 		if(this.descriptions[index] == null) {
-			console.log("src/truetype/TTFGlyphs.hx:35:","Can not get description for glyph index " + index);
+			console.log("src/truetype/TTFGlyphs.hx:50:","Can not get description for glyph index " + index);
 			return null;
 		}
 		var description = this.descriptions[index];
@@ -2172,7 +2170,7 @@ truetype_TTFGlyphs.prototype = {
 			var header1 = description.header;
 			return header1;
 		case 2:
-			console.log("src/truetype/TTFGlyphs.hx:65:","TGlyphNull " + index);
+			console.log("src/truetype/TTFGlyphs.hx:80:","TGlyphNull " + index);
 			return null;
 		}
 	}
@@ -2340,5 +2338,9 @@ haxe_io_FPHelper.i64tmp = (function($this) {
 	return $r;
 }(this));
 haxe_io_FPHelper.helper = new DataView(new ArrayBuffer(8));
+truetype_Glyph2Canvas.ADD_TO_GLYPH_WIDTH = 5;
+truetype_Glyph2Canvas.ADD_TO_GLYPH_HEIGHT = 100;
+truetype_Glyph2SVG.ADD_TO_GLYPH_WIDTH = 5;
+truetype_Glyph2SVG.ADD_TO_GLYPH_HEIGHT = 100;
 Example.main();
 })(typeof window != "undefined" ? window : typeof global != "undefined" ? global : typeof self != "undefined" ? self : this);

@@ -1,5 +1,13 @@
 package truetype;
 
+
+typedef GlyphInfo = {
+	index:Int,
+	 outlines:GlyphOutlines,
+	  unitsPerEm:Int,
+	   xMax:Int,
+	    yMax:Int}
+
 typedef GlyphOutlinePoint = {
 	var c:Bool; // curve
 	var x:Float;

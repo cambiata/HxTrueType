@@ -6,25 +6,20 @@ import truetype.GlyphOutline;
 import format.ttf.Data;
 
 class Glyph2SVG {    
-	static public function getGlyphSvg(ttfGlyphs:TTFGlyphs, index:Int, displayScale:Float = .5, translateY:Float = -1350, fillColor:String = "#4a4ad1"):Xml {
-		// Only works with GlyphSimple right now...
-		// Seems to cover all cases..!?
 
-		var glyph:GlyphSimple = ttfGlyphs.getGlyphSimple(index);
-		if (glyph == null)
-			throw 'Glyph index $index is not of type GlyphSimple';
+	// Add some extra space to the rendered area
+	static var ADD_TO_GLYPH_WIDTH = 5;
+	static var ADD_TO_GLYPH_HEIGHT = 100;
 
-		var glyphHeader:GlyphHeader = ttfGlyphs.getGlyphHeader(index);
-
-		var scale = (64 / ttfGlyphs.headdata.unitsPerEm) * displayScale;
-		var canvasWidth = (glyphHeader.xMax + 5) * scale;
-		var canvasHeight = (ttfGlyphs.headdata.yMax + 300) * scale;
-		var outlines:GlyphOutlines = ttfGlyphs.getGlyphOutlines(index);
-
+	static public function getGlyphSvg(glyphInfo:GlyphInfo,  displayScale:Float = .5, translateY:Float = -1000, fillColor:String = "#4a4ad1"):Xml {
+		var scale = (64 / glyphInfo.unitsPerEm) * displayScale;
+		var svgWidth = glyphInfo.xMax * scale + ADD_TO_GLYPH_WIDTH;
+		var svgHeight = glyphInfo.yMax * scale + ADD_TO_GLYPH_HEIGHT;
+		
 		//--------------------------------------------------------------------
 		// Draw glyph outline
 		var svgPath = [];
-		for (outline in outlines) {
+		for (outline in glyphInfo.outlines) {
 			var offCurvePoint:GlyphOutlinePoint = null;
 			for (i in 0...outline.length) {
 				var point = outline[i];
@@ -58,8 +53,8 @@ class Glyph2SVG {
 
 		var svg = Xml.createElement('svg');
 		svg.set('xmlns', 'http://www.w3.org/2000/svg');
-		svg.set('width', canvasWidth + "px");
-		svg.set('height', canvasHeight + "px");
+		svg.set('width', svgWidth + "px");
+		svg.set('height', svgHeight + "px");
 
 		svg.addChild(path);
 

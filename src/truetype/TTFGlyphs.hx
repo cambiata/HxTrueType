@@ -3,6 +3,8 @@ package truetype;
 import format.ttf.Data;
 import truetype.GlyphOutline;
 
+
+
 class TTFGlyphs {
 	public var headdata(default, null):HeadData;
 	public var length(default, null):Int;
@@ -28,6 +30,19 @@ class TTFGlyphs {
 				default:
 			}
 		}
+	}
+	
+	public function getGlyphInfo(index:Int):GlyphInfo {
+		var glyphHeader:GlyphHeader = this.getGlyphHeader(index);
+		var glyphInfo:GlyphInfo = {
+			index:index,
+			outlines: this.getGlyphOutlines(index),
+			xMax:glyphHeader.xMax,
+			yMax:this.headdata.yMax,
+			unitsPerEm: this.headdata.unitsPerEm,			
+		}
+
+		return glyphInfo;
 	}
 
 	public function getGlyphSimple(index:Int):GlyphSimple {
