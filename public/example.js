@@ -1905,7 +1905,7 @@ js_Boot.__string_rec = function(o,s) {
 };
 var truetype_Glyph2Canvas = function() { };
 truetype_Glyph2Canvas.__name__ = true;
-truetype_Glyph2Canvas.getGlyphCanvas = function(glyphInfo,displayScale,translateY,fillColor,drawPoints,drawStroke) {
+truetype_Glyph2Canvas.drawGlyphOnCanvasContext2D = function(ctx,glyphInfo,x,y,displayScale,translateY,fillColor,drawPoints,drawStroke) {
 	if(drawStroke == null) {
 		drawStroke = true;
 	}
@@ -1921,16 +1921,7 @@ truetype_Glyph2Canvas.getGlyphCanvas = function(glyphInfo,displayScale,translate
 	if(displayScale == null) {
 		displayScale = .5;
 	}
-	var canvas = window.document.createElement("canvas");
-	var index = glyphInfo.index;
 	var scale = 64 / glyphInfo.unitsPerEm * displayScale;
-	var canvasWidth = glyphInfo.xMax * scale + truetype_Glyph2Canvas.ADD_TO_GLYPH_WIDTH;
-	var canvasHeight = glyphInfo.yMax * scale + truetype_Glyph2Canvas.ADD_TO_GLYPH_HEIGHT;
-	canvas.setAttribute("height","" + canvasHeight + "px");
-	canvas.setAttribute("width","" + canvasWidth + "px");
-	var ctx = canvas.getContext("2d",null);
-	ctx.font = "16px Arial";
-	ctx.fillText("" + index,8,20);
 	ctx.scale(scale,-scale);
 	ctx.translate(0,translateY);
 	ctx.beginPath();
@@ -1994,6 +1985,34 @@ truetype_Glyph2Canvas.getGlyphCanvas = function(glyphInfo,displayScale,translate
 			}
 		}
 	}
+};
+truetype_Glyph2Canvas.getGlyphCanvas = function(glyphInfo,displayScale,translateY,fillColor,drawPoints,drawStroke) {
+	if(drawStroke == null) {
+		drawStroke = true;
+	}
+	if(drawPoints == null) {
+		drawPoints = false;
+	}
+	if(fillColor == null) {
+		fillColor = "#00a";
+	}
+	if(translateY == null) {
+		translateY = -1000;
+	}
+	if(displayScale == null) {
+		displayScale = .5;
+	}
+	var canvas = window.document.createElement("canvas");
+	var index = glyphInfo.index;
+	var scale = 64 / glyphInfo.unitsPerEm * displayScale;
+	var canvasWidth = glyphInfo.xMax * scale + truetype_Glyph2Canvas.ADD_TO_GLYPH_WIDTH;
+	var canvasHeight = glyphInfo.yMax * scale + truetype_Glyph2Canvas.ADD_TO_GLYPH_HEIGHT;
+	canvas.setAttribute("height","" + canvasHeight + "px");
+	canvas.setAttribute("width","" + canvasWidth + "px");
+	var ctx = canvas.getContext("2d",null);
+	ctx.font = "16px Arial";
+	ctx.fillText("" + index,8,20);
+	truetype_Glyph2Canvas.drawGlyphOnCanvasContext2D(ctx,glyphInfo,0,0,displayScale,translateY,fillColor,drawPoints,drawStroke);
 	return canvas;
 };
 var truetype_Glyph2SVG = function() { };

@@ -1,5 +1,6 @@
 package truetype;
 
+import js.html.CanvasRenderingContext2D;
 import js.Browser;
 import js.html.CanvasElement;
 import truetype.GlyphOutline;
@@ -12,21 +13,12 @@ class Glyph2Canvas {
 	static var ADD_TO_GLYPH_WIDTH = 5;
 	static var ADD_TO_GLYPH_HEIGHT = 100;
 
-	static public function getGlyphCanvas(glyphInfo:GlyphInfo, displayScale:Float = .5, translateY:Float=-1000, fillColor:String = "#00a", drawPoints:Bool = false, drawStroke:Bool=true):CanvasElement {
-		var canvas:js.html.CanvasElement = Browser.document.createCanvasElement();
-		var index = glyphInfo.index;
-        var scale = (64 / glyphInfo.unitsPerEm) * displayScale;
-		var canvasWidth = glyphInfo.xMax * scale + ADD_TO_GLYPH_WIDTH;
-		var canvasHeight = glyphInfo.yMax * scale + ADD_TO_GLYPH_HEIGHT;
+	static public function drawGlyphOnCanvasContext2D(ctx:CanvasRenderingContext2D, glyphInfo:GlyphInfo, x:Float, y:Float, displayScale:Float = .5, translateY:Float=-1000, fillColor:String = "#00a", drawPoints:Bool = false, drawStroke:Bool=true) {
 
-        canvas.setAttribute('height', '${canvasHeight}px');
-		canvas.setAttribute('width', '${canvasWidth}px');
-		var ctx:js.html.CanvasRenderingContext2D = canvas.getContext2d();
-		ctx.font = "16px Arial";
-		ctx.fillText('$index', 8, 20);
+		var scale = (64 / glyphInfo.unitsPerEm) * displayScale;
+
 		ctx.scale(scale, -scale);
 		ctx.translate(0, translateY);
-
 
 		// --------------------------------------------------------------------
 		// Draw bounding box
@@ -91,7 +83,24 @@ class Glyph2Canvas {
 				}
 			}
         }
-        //--------------------------------------------------
+
+	}
+
+	static public function getGlyphCanvas(glyphInfo:GlyphInfo, displayScale:Float = .5, translateY:Float=-1000, fillColor:String = "#00a", drawPoints:Bool = false, drawStroke:Bool=true):CanvasElement {
+		var canvas:js.html.CanvasElement = Browser.document.createCanvasElement();
+		var index = glyphInfo.index;
+        var scale = (64 / glyphInfo.unitsPerEm) * displayScale;
+		var canvasWidth = glyphInfo.xMax * scale + ADD_TO_GLYPH_WIDTH;
+		var canvasHeight = glyphInfo.yMax * scale + ADD_TO_GLYPH_HEIGHT;
+
+        canvas.setAttribute('height', '${canvasHeight}px');
+		canvas.setAttribute('width', '${canvasWidth}px');
+		var ctx:js.html.CanvasRenderingContext2D = canvas.getContext2d();
+		ctx.font = "16px Arial";
+		ctx.fillText('$index', 8, 20);
+
+		drawGlyphOnCanvasContext2D(ctx, glyphInfo, 0, 0, displayScale, translateY, fillColor, drawPoints, drawStroke);
+		
 		return canvas;
 	}    
 }
