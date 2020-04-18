@@ -3,6 +3,6 @@
 -cp src
 -cp src-truetype
 
--main TestMetrics
+-main TestMetricsExample
 
 -js public/test-metrics.js

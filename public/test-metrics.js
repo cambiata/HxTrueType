@@ -7,10 +7,6 @@ function $extend(from, fields) {
 	if( fields.toString !== Object.prototype.toString ) proto.toString = fields.toString;
 	return proto;
 }
-var haxe_ds_IntMap = function() {
-	this.h = { };
-};
-haxe_ds_IntMap.__name__ = true;
 var Fontdata_$PTSerif = function() { };
 Fontdata_$PTSerif.__name__ = true;
 var HxOverrides = function() { };
@@ -40,7 +36,7 @@ Lambda.fold = function(it,f,first) {
 	return first;
 };
 Math.__name__ = true;
-var TestMetrics = function() {
+var TestMetricsExample = function() {
 	this.input = window.document.querySelector("#input");
 	this.input.oninput = $bind(this,this.onInput);
 	this.canvas = window.document.querySelector("#canvas");
@@ -51,14 +47,14 @@ var TestMetrics = function() {
 	this.glyphXMaxMap = fontdata.glyphXMaxMap;
 	this.drawString("Abc123");
 };
-TestMetrics.__name__ = true;
-TestMetrics.main = function() {
-	console.log("test-metrics/TestMetrics.hx:9:","TestMetrics");
-	new TestMetrics();
+TestMetricsExample.__name__ = true;
+TestMetricsExample.main = function() {
+	console.log("src-test-metrics/TestMetricsExample.hx:9:","TestMetrics");
+	new TestMetricsExample();
 };
-TestMetrics.prototype = {
+TestMetricsExample.prototype = {
 	onInput: function(e) {
-		console.log("test-metrics/TestMetrics.hx:33:",this.input.value);
+		console.log("src-test-metrics/TestMetricsExample.hx:33:",this.input.value);
 		this.drawString(this.input.value);
 	}
 	,drawString: function(str) {
@@ -71,28 +67,32 @@ TestMetrics.prototype = {
 			var c = _g1[_g];
 			++_g;
 			try {
-				console.log("test-metrics/TestMetrics.hx:44:",c);
-				console.log("test-metrics/TestMetrics.hx:45:",HxOverrides.cca(c,0));
+				console.log("src-test-metrics/TestMetricsExample.hx:44:",c);
+				console.log("src-test-metrics/TestMetricsExample.hx:45:",HxOverrides.cca(c,0));
 				var code = HxOverrides.cca(c,0);
 				if(code == 32) {
 					x += 2200 * scale;
 					continue;
 				}
 				var glyphIndex = this.charMap.h[HxOverrides.cca(c,0)];
-				console.log("test-metrics/TestMetrics.hx:52:",glyphIndex);
+				console.log("src-test-metrics/TestMetricsExample.hx:52:",glyphIndex);
 				var glyphWidth = this.glyphXMaxMap.h[glyphIndex];
-				console.log("test-metrics/TestMetrics.hx:54:",glyphWidth);
+				console.log("src-test-metrics/TestMetricsExample.hx:54:",glyphWidth);
 				var points2 = this.outlines.h[glyphIndex];
-				console.log("test-metrics/TestMetrics.hx:56:",points2);
+				console.log("src-test-metrics/TestMetricsExample.hx:56:",points2);
 				this.ctx.fillStyle = "#413B80";
 				truetype_util_CanvasUtil.drawGlyphOnCanvasContext2D(this.ctx,points2,scale,-1700,x,0,false,false);
 				x += glyphWidth;
 			} catch( e ) {
-				console.log("test-metrics/TestMetrics.hx:62:",((e) instanceof js__$Boot_HaxeError) ? e.val : e);
+				console.log("src-test-metrics/TestMetricsExample.hx:62:",((e) instanceof js__$Boot_HaxeError) ? e.val : e);
 			}
 		}
 	}
 };
+var haxe_ds_IntMap = function() {
+	this.h = { };
+};
+haxe_ds_IntMap.__name__ = true;
 var haxe_ds_StringMap = function() {
 	this.h = { };
 };
@@ -2906,5 +2906,5 @@ Fontdata_$PTSerif.fontdata = (function($this) {
 	$r = { glyphXMaxMap : _g, fontYMax : 1003, charMap : _g1, glyphOutlines : _g2};
 	return $r;
 }(this));
-TestMetrics.main();
+TestMetricsExample.main();
 })(typeof window != "undefined" ? window : typeof global != "undefined" ? global : typeof self != "undefined" ? self : this);

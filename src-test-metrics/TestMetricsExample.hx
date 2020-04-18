@@ -7,7 +7,7 @@ import js.Browser;
 class TestMetricsExample {
 	static function main() {
 		trace('TestMetrics');
-		new TestMetrics();
+		new TestMetricsExample();
 	}
 
 	var input:InputElement;
