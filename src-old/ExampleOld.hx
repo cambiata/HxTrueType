@@ -42,23 +42,7 @@ class ExampleOld {
 						if (item != null && item.char != null)
 						map.set(item.charCode, item.index);
 					}
-
-					var fontName 
-
-					var a = [];
-					for(code => index in map) {
-						a.push('$code => $index');
-					}
-					var astr = a.join(', ');
-					trace(astr);
-					var bstr = '
-					class GeorgiaTtfMap {
-						static public final map:haxe.ds.IntMap<Int> = [$astr];
-					}
-					';
-
-					sys.io.File.saveContent('TtfCmap_gorgia.hx', bstr);
-
+					
 					var s = testString.split('');
 					for (char in s) {						
 						var index = map.get(char.charCodeAt(0));

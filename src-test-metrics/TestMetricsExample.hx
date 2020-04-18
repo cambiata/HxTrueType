@@ -4,7 +4,7 @@ import js.html.CanvasElement;
 import js.html.InputElement;
 import js.Browser;
 
-class TestMetrics {
+class TestMetricsExample {
 	static function main() {
 		trace('TestMetrics');
 		new TestMetrics();

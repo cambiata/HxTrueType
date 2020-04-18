@@ -8,8 +8,8 @@
 # -resource fonts/Vollkorn-Regular.ttf@font
 # -resource fonts/constan.ttf@font
 
--cp src-example
--main Example
+-cp src-truetype
+-main TruetypeExample
 
 --each 
 -js public/example.js

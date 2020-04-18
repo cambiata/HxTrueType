@@ -1,7 +1,7 @@
--cp test-metrics
+-cp src-test-metrics
 -cp src-fonts
 -cp src
--cp src-example
+-cp src-truetype
 
 -main TestMetrics
 

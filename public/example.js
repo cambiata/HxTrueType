@@ -7,45 +7,6 @@ function $extend(from, fields) {
 	if( fields.toString !== Object.prototype.toString ) proto.toString = fields.toString;
 	return proto;
 }
-var Example = function() {
-	var bytes = haxe_Resource.getBytes("font");
-	this.trueTypeFont = new truetype_TrueTypeFont(bytes);
-	var _g = 0;
-	var _g1 = this.trueTypeFont.length;
-	while(_g < _g1) {
-		var index = _g++;
-		this.createAndDisplayGlyph(index);
-	}
-};
-Example.__name__ = true;
-Example.main = function() {
-	new Example();
-};
-Example.prototype = {
-	createAndDisplayGlyph: function(index) {
-		var scale = 3.0;
-		var translateY = -1000;
-		var glyph = this.trueTypeFont.readGlyph(index);
-		if(glyph == null) {
-			console.log("src-example/Example.hx:27:","Can not create glyph for index " + index);
-			return;
-		}
-		var tt2c = new truetype_TrueType2Canvas(this.trueTypeFont,scale,translateY);
-		tt2c.fillColor = "#ccc";
-		tt2c.drawStroke = true;
-		var canvas = tt2c.getGlyphCanvas2(haxe_ds_Either.Right(glyph));
-		if(canvas != null) {
-			window.document.body.appendChild(canvas);
-		}
-		var svg = new truetype_TrueType2Svg(this.trueTypeFont,scale,translateY).getGlyphSvg2(haxe_ds_Either.Right(glyph));
-		if(svg != null) {
-			var div = window.document.createElement("div");
-			div.innerHTML = haxe_xml_Printer.print(svg);
-			var svgElement = div.firstChild;
-			window.document.body.appendChild(svgElement);
-		}
-	}
-};
 var HxOverrides = function() { };
 HxOverrides.__name__ = true;
 HxOverrides.cca = function(s,index) {
@@ -180,6 +141,45 @@ StringTools.rtrim = function(s) {
 };
 StringTools.trim = function(s) {
 	return StringTools.ltrim(StringTools.rtrim(s));
+};
+var TruetypeExample = function() {
+	var bytes = haxe_Resource.getBytes("font");
+	this.trueTypeFont = new truetype_TrueTypeFont(bytes);
+	var _g = 0;
+	var _g1 = this.trueTypeFont.length;
+	while(_g < _g1) {
+		var index = _g++;
+		this.createAndDisplayGlyph(index);
+	}
+};
+TruetypeExample.__name__ = true;
+TruetypeExample.main = function() {
+	new TruetypeExample();
+};
+TruetypeExample.prototype = {
+	createAndDisplayGlyph: function(index) {
+		var scale = 3.0;
+		var translateY = -1000;
+		var glyph = this.trueTypeFont.readGlyph(index);
+		if(glyph == null) {
+			console.log("src-truetype/TruetypeExample.hx:27:","Can not create glyph for index " + index);
+			return;
+		}
+		var tt2c = new truetype_TrueType2Canvas(this.trueTypeFont,scale,translateY);
+		tt2c.fillColor = "#ccc";
+		tt2c.drawStroke = true;
+		var canvas = tt2c.getGlyphCanvas2(haxe_ds_Either.Right(glyph));
+		if(canvas != null) {
+			window.document.body.appendChild(canvas);
+		}
+		var svg = new truetype_TrueType2Svg(this.trueTypeFont,scale,translateY).getGlyphSvg2(haxe_ds_Either.Right(glyph));
+		if(svg != null) {
+			var div = window.document.createElement("div");
+			div.innerHTML = haxe_xml_Printer.print(svg);
+			var svgElement = div.firstChild;
+			window.document.body.appendChild(svgElement);
+		}
+	}
 };
 var _$Xml_XmlType_$Impl_$ = {};
 _$Xml_XmlType_$Impl_$.__name__ = true;
@@ -1217,7 +1217,7 @@ truetype_TrueType2Canvas.prototype = $extend(truetype_base_TrueType2Base.prototy
 					break;
 				case 1:
 					var components1 = _g22.components;
-					console.log("src-example/truetype/TrueType2Canvas.hx:50:","Compound in compound - should this be possible? index " + compGlyph.index);
+					console.log("src-truetype/truetype/TrueType2Canvas.hx:50:","Compound in compound - should this be possible? index " + compGlyph.index);
 					break;
 				}
 			}
@@ -1295,7 +1295,7 @@ truetype_TrueType2Svg.prototype = $extend(truetype_base_TrueType2Base.prototype,
 					break;
 				case 1:
 					var components1 = _g22.components;
-					console.log("src-example/truetype/TrueType2Svg.hx:40:","Compound in compound - should this be possible? index " + compGlyph.index);
+					console.log("src-truetype/truetype/TrueType2Svg.hx:40:","Compound in compound - should this be possible? index " + compGlyph.index);
 					break;
 				}
 			}
@@ -1516,5 +1516,5 @@ Xml.Element = 0;
 Xml.Document = 6;
 haxe_crypto_Base64.CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 haxe_crypto_Base64.BYTES = haxe_io_Bytes.ofString(haxe_crypto_Base64.CHARS);
-Example.main();
+TruetypeExample.main();
 })({});

@@ -1,8 +1,8 @@
--cp src-example
+-cp src-truetype
 -cp src-old
--cp src-map
+-cp src-export-fontdata
 
--main CreateFontMaps
+-main ExportFontdata
 
 # -resource fonts/arial.ttf@font
 # -resource fonts/georgia.ttf@font

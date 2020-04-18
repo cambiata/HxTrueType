@@ -2,9 +2,9 @@ import truetype.TrueType;
 import truetype.TrueType2Svg;
 import truetype.TrueType2Canvas;
 
-class Example {
+class TruetypeExample {
 	static public function main() {
-		new Example();
+		new TruetypeExample();
 	}
 
 	var trueTypeFont:TrueTypeFont;
