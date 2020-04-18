@@ -8,9 +8,9 @@ Native Haxe TrueType parsing and rendering. WIP.
 - George Corney's crosstarget typedarray implementation included in the Gluon lib: https://github.com/haxiomic/gluon
 
 ### What?
-- Parses .ttf files and extracts glyph outline data, charactermap data (cmap), glyph metrics - not yet kerning data, but that's planned
-- Utils for rendering outline data to html canvas or native svg (without html-dom dependencies). 
-- Possible to save extracted truetype data as reusable Haxe classes, for easy use of font/glyphs without the parsing overhead.
+- Parses .ttf files and extracts glyph outline data, charactermap data (cmap), glyph metrics - not yet kerning data, but that's planned. Right now two implementations, one simpler [based on Steve Hanov's code](http://stevehanov.ca/blog/?id=143), where compound glyphs work, and one more complete based on Jan Flander's code where compound glyphs don't. The plan is to join these in a nice way... :-)
+- Utils for rendering outline data to html [canvas](https://github.com/cambiata/HxTrueType/blob/master/src-truetype/truetype/TrueType2Canvas.hx) or [native svg](https://github.com/cambiata/HxTrueType/blob/master/src-truetype/truetype/TrueType2Svg.hx) (without html-dom dependencies). 
+- Possible to save [extracted truetype data](https://github.com/cambiata/HxTrueType/blob/master/src-fonts/Fontdata_Arial.hx) as reusable Haxe typedef data, for easy use of font/glyphs without the parsing overhead.
 
 ![alt text](example.png)
 
