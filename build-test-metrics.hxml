@@ -1,0 +1,8 @@
+-cp test-metrics
+-cp src-fonts
+-cp src
+-cp src-example
+
+-main TestMetrics
+
+-js public/test-metrics.js

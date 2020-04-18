@@ -5,22 +5,21 @@ import truetype.TTFGlyphs;
 import truetype.GlyphOutline;
 import format.ttf.Data;
 
-class Glyph2SVG {    
-
+class Glyph2SVG {
 	// Add some extra space to the rendered area
 	static var ADD_TO_GLYPH_WIDTH = 5;
 	static var ADD_TO_GLYPH_HEIGHT = 100;
 
-	static public function getGlyphSvg(glyphInfo:GlyphInfo,  displayScale:Float = .5, translateY:Float = -1000, fillColor:String = "#4a4ad1"):Xml {
+	static public function getGlyphSvg(glyphInfo:GlyphInfo, displayScale:Float = .5, translateY:Float = -1000, fillColor:String = "#4a4ad1"):Xml {
 		var scale = (64 / glyphInfo.unitsPerEm) * displayScale;
 		var svgWidth = glyphInfo.xMax * scale + ADD_TO_GLYPH_WIDTH;
 		var svgHeight = glyphInfo.yMax * scale + ADD_TO_GLYPH_HEIGHT;
-		
+
 		//--------------------------------------------------------------------
 		// Draw glyph outline
 		var svgPath = [];
 		for (outline in glyphInfo.outlines) {
-			var offCurvePoint:GlyphOutlinePoint = null;
+			var offCurvePoint:GlyphPoint = null;
 			for (i in 0...outline.length) {
 				var point = outline[i];
 				if (i == 0) {
@@ -48,7 +47,7 @@ class Glyph2SVG {
 		path.set('d', svgPath.join(' '));
 
 		final MAGIC_SVG_SCALE = 0.064; // Used to scale the rendered SVG glyphs to the same size as Canvas glyphs...
-		var scale = MAGIC_SVG_SCALE * displayScale;
+		var scale = scale * displayScale * .335;
 		path.set('transform', 'scale($scale, -$scale) translate(0, $translateY)');
 
 		var svg = Xml.createElement('svg');
@@ -60,4 +59,6 @@ class Glyph2SVG {
 
 		return svg;
 	}
+
+	
 }

@@ -7,15 +7,16 @@ import truetype.GlyphOutline;
 import truetype.TTFGlyphs;
 import format.ttf.Data;
 
+
 class Glyph2Canvas {
 
 	// Add some extra space to the rendered area
 	static var ADD_TO_GLYPH_WIDTH = 5;
 	static var ADD_TO_GLYPH_HEIGHT = 100;
 
-	static public function drawGlyphOnCanvasContext2D(ctx:CanvasRenderingContext2D, glyphInfo:GlyphInfo, x:Float, y:Float, displayScale:Float = .5, translateY:Float=-1000, fillColor:String = "#00a", drawPoints:Bool = false, drawStroke:Bool=true) {
+	static public function drawGlyphOnCanvasContext2D(ctx:CanvasRenderingContext2D, points2:Array<Array<GlyphPoint>>, unitsPerEm:Float, x:Float, y:Float, displayScale:Float = .5, translateY:Float=-1000, fillColor:String = "#00a", drawPoints:Bool = true, drawStroke:Bool=true) {
 
-		var scale = (64 / glyphInfo.unitsPerEm) * displayScale;
+		var scale = (64 / unitsPerEm) * displayScale;
 
 		ctx.scale(scale, -scale);
 		ctx.translate(0, translateY);
@@ -34,19 +35,19 @@ class Glyph2Canvas {
 		// Draw glyph outline
 		ctx.beginPath();
 
-		for (outline in glyphInfo.outlines) {
-			var offCurvePoint:GlyphOutlinePoint = null;
+		for (outline in points2) {
+			var offCurvePoint:GlyphPoint = null;
 			for (i in 0...outline.length) {
 				var point = outline[i];
 				if (i == 0) {
-					ctx.moveTo(point.x, point.y);
+					ctx.moveTo(x + point.x, y + point.y);
 				} else {
 					var prevPoint = outline[i - 1];
 					if (point.c) { // curve?
 						if (prevPoint.c) {
-							ctx.lineTo(point.x, point.y);
+							ctx.lineTo(x + point.x, y + point.y);
 						} else {
-							ctx.quadraticCurveTo(offCurvePoint.x, offCurvePoint.y, point.x, point.y);
+							ctx.quadraticCurveTo(x + offCurvePoint.x, y + offCurvePoint.y, x + point.x, y + point.y);
 						}
 					} else {
 						offCurvePoint = outline[i];
@@ -64,12 +65,12 @@ class Glyph2Canvas {
 		// ----------------------------------------
 		// Draw points
 		if (drawPoints) {
-			for (outline in glyphInfo.outlines) {
+			for (outline in points2) {
 				for (point in outline) {
 					if (point == outline[0]) {
 						ctx.beginPath();
 						ctx.fillStyle = '#0000ff';
-						ctx.rect(point.x - 20, point.y - 20, 40, 40);
+						ctx.rect(x + point.x - 20, y + point.y - 20, 40, 40);
 						ctx.fill();
 					}
 
@@ -78,15 +79,20 @@ class Glyph2Canvas {
 						ctx.fillStyle = '#ff0000';
 					else
 						ctx.fillStyle = '#00ff00';
-					ctx.rect(point.x - 10, point.y - 10, 20, 20);
+					ctx.rect(x + point.x - 10, y + point.y - 10, 20, 20);
 					ctx.fill();
 				}
 			}
-        }
+		}
+		
+		//---------------------------------------------
+		// Restore scaling and transformation
+		ctx.resetTransform();		
+		ctx.restore();
 
 	}
 
-	static public function getGlyphCanvas(glyphInfo:GlyphInfo, displayScale:Float = .5, translateY:Float=-1000, fillColor:String = "#00a", drawPoints:Bool = false, drawStroke:Bool=true):CanvasElement {
+	static public function getGlyphCanvas(glyphInfo:GlyphInfo, displayScale:Float = .5, translateY:Float=-1000, fillColor:String = "#00a", drawPoints:Bool = true, drawStroke:Bool=true):CanvasElement {
 		var canvas:js.html.CanvasElement = Browser.document.createCanvasElement();
 		var index = glyphInfo.index;
         var scale = (64 / glyphInfo.unitsPerEm) * displayScale;
@@ -99,8 +105,11 @@ class Glyph2Canvas {
 		ctx.font = "16px Arial";
 		ctx.fillText('$index', 8, 20);
 
-		drawGlyphOnCanvasContext2D(ctx, glyphInfo, 0, 0, displayScale, translateY, fillColor, drawPoints, drawStroke);
+		drawGlyphOnCanvasContext2D(ctx, glyphInfo.outlines, glyphInfo.unitsPerEm, 0, 0, displayScale, translateY, fillColor, drawPoints, drawStroke);
 		
 		return canvas;
 	}    
+
+		
+
 }

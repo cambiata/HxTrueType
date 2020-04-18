@@ -1,0 +1,16 @@
+-cp src-example
+-cp src-old
+-cp src-map
+
+-main CreateFontMaps
+
+# -resource fonts/arial.ttf@font
+# -resource fonts/georgia.ttf@font
+# -resource fonts/MTF-Cadence-Fin.ttf@font
+# -resource fonts/EBGaramond-Regular.ttf@font
+# -resource fonts/Vollkorn-Regular.ttf@font
+-resource fonts/PTSerif-Regular.ttf@font
+
+--interp
+# -js test.js
+# -cmd node test.js

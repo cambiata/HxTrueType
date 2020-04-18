@@ -28,33 +28,24 @@ class Reader {
 	}
 
 	public function read():TTF {
-		var header: Header_ = input;
-		var directory = readDirectory( header );
-		var hheaData = ( tablesHash.get( "hhea" ): HheaData_ );
-		var headData = ( tablesHash.get( "head" ): HeadData_ );
-		var maxpData = ( tablesHash.get( "maxp" ): MaxpData_ );
-		var locaData = readLocaTable( tablesHash.get( "loca" ), headData, maxpData );
-		var hmtxData = readHmtxTable( tablesHash.get( "hmtx" ), maxpData, hheaData );
-		var cmapData = readCmapTable( tablesHash.get( "cmap" ) );
-		var glyfData = readGlyfTable( tablesHash.get( "glyf" ), maxpData, locaData, cmapData, hmtxData );
-		var kernData = readKernTable( tablesHash.get( "kern" ) );
+		var header:Header_ = input;
+		var directory = readDirectory(header);
+		var hheaData = (tablesHash.get("hhea") : HheaData_);
+		var headData = (tablesHash.get("head") : HeadData_);
+		var maxpData = (tablesHash.get("maxp") : MaxpData_);
+		var locaData = readLocaTable(tablesHash.get("loca"), headData, maxpData);
+		var hmtxData = readHmtxTable(tablesHash.get("hmtx"), maxpData, hheaData);
+		var cmapData = readCmapTable(tablesHash.get("cmap"));
+		var glyfData = readGlyfTable(tablesHash.get("glyf"), maxpData, locaData, cmapData, hmtxData);
+
+		var kernData = readKernTable(tablesHash.get("kern"));
 		// var postData = readPostTable(tablesHash.get("post"));
-		var os2Data = ( tablesHash.get( "OS_2" ): OS2Data_ );
+		var os2Data = (tablesHash.get("OS_2") : OS2Data_);
 		var nameData = readNameTable(tablesHash.get("_name"));
-		
+
 		var tables = [
-				THhea( hheaData ),
-				THead( headData ),
-				TMaxp( maxpData ),
-				TLoca( locaData ),
-				THmtx( hmtxData ),
-				TCmap( cmapData ),
-				TGlyf( glyfData ),
-				TKern( kernData ),
-				/*TPost( postData ),*/
-				TOS2( os2Data ),
-				TName( nameData )
-		];
+			THhea(hheaData), THead(headData), TMaxp(maxpData), TLoca(locaData), THmtx(hmtxData), TCmap(cmapData), TGlyf(glyfData), TKern(kernData),
+			/*TPost( postData ),*/ TOS2(os2Data), TName(nameData)];
 		return {
 			header: header,
 			directory: directory,
@@ -122,7 +113,7 @@ class Reader {
 			result = 1;
 		return result;
 	}
-	
+
 	// loca (glyph location) table
 	function readLocaTable(bytes:Bytes, head:HeadData, maxp:MaxpData):LocaData {
 		if (bytes == null)
@@ -292,110 +283,99 @@ class Reader {
 	}
 
 	function readGlyfComposite(input, len, glyphIndex):Array<GlyphComponent> {
+		// trace(Std.string(glyphIndex) +  '- len: ' + Std.string(len));
 		var components:Array<GlyphComponent> = new Array();
 		input.read(len);
 		return components;
-		/*
-			var components:Array<GlyphComponent>=new Array();
-				  var firstIndex   = 0;
-				  var firstContour = 0;
-			var flags = 0xFF;
-				  try
-				  {
-			while ((flags & CFlag.MORE_COMPONENTS) != 0)
-				{
-					var argument1, argument2, xtranslate, ytranslate, point1, point2, xscale, yscale, scale01, scale10;
-			var flags = input.readInt16();
-					len-=2;
-			  var glyphIndex = input.readInt16();
-					trace('glyph Composite index =' +cast glyphIndex);
-					len-=2;
-			  if ((flags & CFlag.ARG_1_AND_2_ARE_WORDS) != 0)
-			  {
-				argument1 = input.readInt16();
-				argument2 = input.readInt16();
-						len-=4;
-			  }
-					else
-			  {
-				argument1 = input.readByte();
-				argument2 = input.readByte();
-						len-=2;
-			  }
-			  if ((flags & CFlag.ARGS_ARE_XY_VALUES) != 0)
-			  {
-						xtranslate = argument1;
-				ytranslate = argument2;
-			  }
-					else
-			  {
-				point1 = argument1;
-				point2 = argument2;
-			  }
 
-					var transform=null;
-			  if ((flags & CFlag.WE_HAVE_A_SCALE) != 0)
-			  {
-				xscale = yscale = input.readInt16()/ 0x4000;
-						transform = Transform1(xscale);
-						len-=2;
-			  }
-					else if ((flags & CFlag.WE_HAVE_AN_X_AND_Y_SCALE) != 0)
-					{
-				xscale = input.readInt16()/0x4000;
-				yscale = input.readInt16()/0x4000;
-						transform = Transform2(xscale, yscale);
-						len-=4;
-			   }
-					 else if ((flags & CFlag.WE_HAVE_A_TWO_BY_TWO) != 0)
-					 {
-				  xscale = input.readInt16()/0x4000;
-				  scale01 = input.readInt16()/0x4000;
-				  scale10 = input.readInt16()/0x4000;
-				  yscale = input.readInt16()/ 0x4000;
-							transform = Transform3(xscale, yscale, scale01, scale10);
-							len-=8;
-			   }
+		//---------------------------------
 
-					var comp:GlyphComponent=
-					{
-						flags:flags,
-						glyphIndex:glyphIndex,
-						argument1:argument1,
-						argument2:argument1,
-						transform:transform
-					}
-			  components.push(comp);
+		// var components:Array<GlyphComponent> = new Array();
+		// var firstIndex = 0;
+		// var firstContour = 0;
+		// var flags = 0xFF;
+		// try {
+		// 	while ((flags & CFlag.MORE_COMPONENTS) != 0) {
+		// 		var argument1, argument2, xtranslate, ytranslate, point1, point2, xscale, yscale, scale01, scale10;
+		// 		var flags = input.readInt16();
+		// 		len -= 2;
+		// 		var glyphIndex = input.readInt16();
+		// 		trace('glyph Composite index =' + cast glyphIndex);
+		// 		len -= 2;
+		// 		if ((flags & CFlag.ARG_1_AND_2_ARE_WORDS) != 0) {
+		// 			argument1 = input.readInt16();
+		// 			argument2 = input.readInt16();
+		// 			len -= 4;
+		// 		} else {
+		// 			argument1 = input.readByte();
+		// 			argument2 = input.readByte();
+		// 			len -= 2;
+		// 		}
+		// 		if ((flags & CFlag.ARGS_ARE_XY_VALUES) != 0) {
+		// 			xtranslate = argument1;
+		// 			ytranslate = argument2;
+		// 		} else {
+		// 			point1 = argument1;
+		// 			point2 = argument2;
+		// 		}
 
-			  var desc:GlyfDescript = descriptions[glyphindex];
-			  if (desc != null)
-			  {
-				 firstIndex   += desc.getPointCount();
-				firstContour += desc.getContourCount();
-			  }
-			}
-			if ((flags & CFlag.WE_HAVE_INSTRUCTIONS) != 0)
-			{
-						var instructionLength = input.readUInt16();
-						len-=2;
-						var instructions:Array<Int> = new Array();
-						for (i in 0...instructionLength)
-						{
-							instructions[i] = input.readByte();
-							len-=1;
-						}
-			}
+		// 		var transform = null;
+		// 		if ((flags & CFlag.WE_HAVE_A_SCALE) != 0) {
+		// 			xscale = yscale = input.readInt16() / 0x4000;
+		// 			transform = Transform1(xscale);
+		// 			len -= 2;
+		// 		} else if ((flags & CFlag.WE_HAVE_AN_X_AND_Y_SCALE) != 0) {
+		// 			xscale = input.readInt16() / 0x4000;
+		// 			yscale = input.readInt16() / 0x4000;
+		// 			transform = Transform2(xscale, yscale);
+		// 			len -= 4;
+		// 		} else if ((flags & CFlag.WE_HAVE_A_TWO_BY_TWO) != 0) {
+		// 			xscale = input.readInt16() / 0x4000;
+		// 			scale01 = input.readInt16() / 0x4000;
+		// 			scale10 = input.readInt16() / 0x4000;
+		// 			yscale = input.readInt16() / 0x4000;
+		// 			transform = Transform3(xscale, yscale, scale01, scale10);
+		// 			len -= 8;
+		// 		}
 
-				//trace('composite remaining length: '+ len);
-				input.read(len);
-				  }
-			catch (e:Dynamic)
-			{
-			 //throw e;
-				  }
-			input.read(len);
-			return components;
-		 */
+		// 		var comp:GlyphComponent = {
+		// 			flags: flags,
+		// 			glyphIndex: glyphIndex,
+		// 			argument1: argument1,
+		// 			argument2: argument1,
+		// 			transform: transform
+		// 		}
+		// 		components.push(comp);
+
+		// 		// var desc:GlyfDescr = descriptions[glyphindex];
+
+		// 		// if (desc != null) {
+		// 		// 	firstIndex += desc.getPointCount();
+		// 		// 	firstContour += desc.getContourCount();
+		// 		// }
+
+		// 	}
+
+		// 	if ((flags & CFlag.WE_HAVE_INSTRUCTIONS) != 0) {
+		// 		var instructionLength = input.readUInt16();
+		// 		len -= 2;
+		// 		var instructions:Array<Int> = new Array();
+		// 		for (i in 0...instructionLength) {
+		// 			instructions[i] = input.readByte();
+		// 			len -= 1;
+		// 		}
+		// 	}
+
+		// 	trace('composite remaining length: '+ len);
+		// 	input.read(len);
+		// } catch (e:Dynamic) {
+		// 	trace(e);
+		// 	throw e;
+		// }
+
+		// return components;
+		//----------------------------------------------------------------
+		// input.read(len);
 	}
 
 	// cmap (character code mapping) table
@@ -523,7 +503,8 @@ class Reader {
 						} else {
 							var index:Int = Std.int((idDeltas[i] + charCode) % 65536);
 							return index;
-						} else
+						}
+					else
 						break;
 			return 0;
 		} catch (e:Dynamic)
@@ -657,7 +638,7 @@ class Reader {
 		}
 		// fontName = fontNameRecord.record;
 		this.fontName = fontNameRecord.record;
-		
+
 		/*
 			//offsets don't always match with length and there is overlapping. for now we only search the font name (above).
 			var lastOffset = -1;

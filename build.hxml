@@ -1,9 +1,0 @@
-# -resource fonts/bravura.ttf@font
-# -resource fonts/arial.ttf@font
--resource fonts/AvenirNextCyr-Bold.ttf@font
--cp src
--main Example
-
---each 
--js public/example.js
-

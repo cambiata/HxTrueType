@@ -7,9 +7,12 @@ import truetype.GlyphOutline;
 
 class TTFGlyphs {
 	public var headdata(default, null):HeadData;
+
+
 	public var length(default, null):Int;
 	var descriptions:Array<GlyfDescription>;
 	public var fontName(default, null):String;
+	public var cmapSubtables(default, null):Array<CmapSubTable>;
 
 	public function new(ttfBytes:haxe.io.Bytes) {
 		var bytesInput = new haxe.io.BytesInput(ttfBytes);
@@ -27,7 +30,10 @@ class TTFGlyphs {
 					this.length = this.descriptions.length;
 				case THead(headdata):
 					this.headdata = headdata;
+				case TCmap(subtables):
+					this.cmapSubtables = subtables;
 				default:
+
 			}
 		}
 	}
@@ -47,7 +53,7 @@ class TTFGlyphs {
 
 	public function getGlyphSimple(index:Int):GlyphSimple {
 		if (this.descriptions[index] == null) {
-			trace('Can not get description for glyph index $index');
+			// trace('Can not get description for glyph index $index');
 			return null;
 		}
 		var description:GlyfDescription = this.descriptions[index];
@@ -57,7 +63,9 @@ class TTFGlyphs {
 			case TGlyphComposite(h, components):
 				// Still haven't found any Composite glyphs...
 				// trace('TGlyphNull $index');
-				// throw 'TGlyphComposite $index';
+				// trace(components);
+				// trace( 'TGlyphComposite $index');
+
 				null;
 			case TGlyphNull:
 				// trace('TGlyphNull $index');
@@ -75,9 +83,10 @@ class TTFGlyphs {
 			case TGlyphSimple(header, data):
 				header;
 			case TGlyphComposite(header, components):
+				
 				header;
 			case TGlyphNull:
-				trace('TGlyphNull $index');
+				// trace('TGlyphNull $index');
 				null;
 		}
 	}
@@ -87,7 +96,7 @@ class TTFGlyphs {
 		var points:GlyphOutline = [];
 		for (i in 0...simple.flags.length) {
 			var onCurve = !(simple.flags[i] % 2 == 0);
-			var point:GlyphOutlinePoint = {
+			var point:GlyphPoint = {
 				c: onCurve,
 				x: simple.xCoordinates[i],
 				y: simple.yCoordinates[i],
@@ -143,7 +152,7 @@ class TTFGlyphs {
 			var p1 = outline[outline.length - 1];
 			var newX = ((p1.x - p0.x) / 2) + p0.x;
 			var newY = ((p1.y - p0.y) / 2) + p0.y;
-			var newPoint:GlyphOutlinePoint = {x: newX, y: newY, c: true};
+			var newPoint:GlyphPoint = {x: newX, y: newY, c: true};
 			outline.unshift(newPoint);
 		}
 
@@ -172,7 +181,7 @@ class TTFGlyphs {
 						// trace('two offcurve in a row ' + i);
 						var newX = ((point.x - prevPoint.x) / 2) + prevPoint.x;
 						var newY = ((point.y - prevPoint.y) / 2) + prevPoint.y;
-						var newPoint:GlyphOutlinePoint = {x: newX, y: newY, c: true};
+						var newPoint:GlyphPoint = {x: newX, y: newY, c: true};
 						// trace('point:' + point);
 						// trace('prevPoint:' + prevPoint);
 						// trace('newPoint:' + newPoint);

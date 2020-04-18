@@ -1,0 +1,18 @@
+# -resource fonts/bravura.ttf@font
+# -resource fonts/arial.ttf@font
+# -resource fonts/AvenirNextCyr-Bold.ttf@font
+# -resource fonts/MTF-Cadence-Fin.ttf@font
+# -resource fonts/georgia.ttf@font
+# -resource fonts/PTSerif-Regular.ttf@font
+-resource fonts/EBGaramond-Regular.ttf@font
+# -resource fonts/Vollkorn-Regular.ttf@font
+# -resource fonts/constan.ttf@font
+
+-cp src-example
+-main Example
+
+--each 
+-js public/example.js
+
+# --interp
+
